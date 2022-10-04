@@ -1,24 +1,22 @@
 package com.litaa.projectkupica.domain.member;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.annotation.DirtiesContext.MethodMode.BEFORE_METHOD;
 
 /**
  * @author : Unagi_zoso
  * @date : 2022-10-03
  */
-@Transactional
 @DataJpaTest
 class MemberRepositoryTest {
 
@@ -27,6 +25,12 @@ class MemberRepositoryTest {
 
     @Autowired
     EntityManager em;
+
+    @AfterEach
+    void afterEach() {
+        Query q = em.createNativeQuery("ALTER TABLE member ALTER COLUMN member_id RESTART WITH 1");
+        q.executeUpdate();
+    }
 
     @DisplayName("1. member 추가")
     @Test
@@ -42,7 +46,6 @@ class MemberRepositoryTest {
         assertEquals(memRep.findById(1).orElseThrow(RuntimeException::new).getMemberPassword(), "s1234");
     }
 
-    @DirtiesContext(methodMode = BEFORE_METHOD)
     @DisplayName("2. member 목록 보기")
     @Test
     void test_2(){
@@ -96,7 +99,6 @@ class MemberRepositoryTest {
         assertEquals(memRep.findAll().get(1).getMemberNickname(), member2.getMemberNickname());
     }
 
-    @DirtiesContext(methodMode = BEFORE_METHOD)
     @DisplayName("4. member 수정")
     @Test
     void test_4(){
@@ -123,7 +125,6 @@ class MemberRepositoryTest {
         assertNotEquals(prevPassword, curPassword);
     }
 
-    @DirtiesContext(methodMode = BEFORE_METHOD)
     @DisplayName("5. member 삭제")
     @Test
     void test_5(){
