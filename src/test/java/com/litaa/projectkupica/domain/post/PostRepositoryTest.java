@@ -110,6 +110,20 @@ class PostRepositoryTest {
 
         assertEquals(postRep.findAll().size(), 3);
     }
-    // post 수정
-    // post 삭제
+
+    @DisplayName("4. post 삭제")
+    @Test
+    void test_4(){
+        Post newPost = Post.builder()
+                .postFkMember(member.getMemberId())
+                .build();
+
+        postRep.save(newPost);
+
+        postRep.deleteById(1);
+
+        em.flush();
+
+        assertEquals(postRep.findById(1).isPresent(), false);
+    }
 }
