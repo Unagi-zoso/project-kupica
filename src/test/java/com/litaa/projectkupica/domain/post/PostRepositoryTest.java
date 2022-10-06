@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author : Unagi_zoso
@@ -124,6 +125,6 @@ class PostRepositoryTest {
 
         em.flush();
 
-        assertEquals(postRep.findById(1).isPresent(), false);
+        assertFalse(postRep.findById(1).isPresent());
     }
 }
