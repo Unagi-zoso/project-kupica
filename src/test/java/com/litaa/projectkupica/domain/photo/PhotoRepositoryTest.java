@@ -1,7 +1,8 @@
 package com.litaa.projectkupica.domain.photo;
 
+import com.litaa.projectkupica.domain.member.Member;
+import com.litaa.projectkupica.domain.member.MemberRepository;
 import com.litaa.projectkupica.domain.post.Post;
-import com.litaa.projectkupica.domain.post.PostRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,13 +22,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class PhotoRepositoryTest {
 
+
+
     @Autowired
-    PostRepository postRep;
+    MemberRepository memRep;
+    @Autowired
+    com.litaa.projectkupica.domain.post.PostRepository postRep;
 
     @Autowired
     PhotoRepository photoRep;
     @Autowired
     EntityManager em;
+
+    Member member;
 
     Post post;
 
@@ -35,15 +42,21 @@ class PhotoRepositoryTest {
 
     @BeforeEach
     void beforeEach() {
+        member = Member.builder()
+                .memberNickname("개구리~")
+                .memberPassword("a1234")
+                .build();
+
+        memRep.save(member);
+
         post = Post.builder()
-                .postFkMember(1)
+                .postFkMember(member)
                 .build();
 
         postRep.save(post);
 
         photo = Photo.builder()
-                .photoFkMember(post.getPostFkMember())
-                .photoFkPost(post.getPostId())
+                .photoFkPost(post)
                 .source("/ABCD.jpeg")
                 .build();
 

@@ -29,6 +29,8 @@ public class Member implements Auditable {
     @Column(unique = true, nullable = false, length = 24)
     private String memberNickname;
 
+    private String role;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

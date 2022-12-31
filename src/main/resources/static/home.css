@@ -1,0 +1,17 @@
+.img-bottom {
+    border: 1px solid black;
+    box-shadow: 0 4px 4px -4px black;
+    object-fit: contain;
+}
+
+.sub-podium-img {
+    padding-top: 5%;
+    display: flex;
+    justify-content: center;
+}
+
+.sub-img {
+
+    margin-left: auto;
+    margin-right: auto;
+}

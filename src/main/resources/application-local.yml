@@ -1,0 +1,50 @@
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  datasource:
+      url: jdbc:h2:mem:testdb;MODE=MariaDB;
+      username: sa
+      password:
+      driverClassName: org.h2.Driver
+  mvc:
+    view:
+      suffix: .html
+
+  jpa:
+    open-in-view: true
+    hibernate:
+      naming:
+        physical-strategy: com.litaa.projectkupica.config.SnakeCasePhysicalNameStrategy
+      ddl-auto: create
+    show-sql: true
+    defer-datasource-initialization: false
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate.dialect: org.hibernate.dialect.H2Dialect
+    generate-ddl: false
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 2MB
+
+  security:
+    user:
+      name: test
+      password: 1234
+
+  sql:
+    init:
+      mode: embedded
+      #schema-locations: classpath:schema-h2.sql
+      #data-locations: classpath:data-h2.sql
+  h2:
+    console:
+      enabled: true
+
+file:
+  path: C:/project-kupica
+
+
+
+

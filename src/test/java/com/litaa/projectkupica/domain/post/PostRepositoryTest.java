@@ -56,11 +56,13 @@ class PostRepositoryTest {
     @Test
     void test_1(){
         Post newPost = Post.builder()
-                .postFkMember(member.getMemberId())
+                .caption("뇨로로롱")
+                .postFkMember(member)
                 .build();
 
         postRep.save(newPost);
 
+        assertEquals(postRep.findById(1).orElseThrow(RuntimeException::new).getCaption(), "뇨로로롱");
         assertEquals(postRep.findById(1).orElseThrow(RuntimeException::new).getPostFkMember(), 1);
     }
 
@@ -68,15 +70,15 @@ class PostRepositoryTest {
     @Test
     void test_2(){
         Post newPost1 = Post.builder()
-                .postFkMember(member.getMemberId())
+                .postFkMember(member)
                 .build();
 
         Post newPost2 = Post.builder()
-                .postFkMember(member.getMemberId())
+                .postFkMember(member)
                 .build();
 
         Post newPost3 = Post.builder()
-                .postFkMember(member.getMemberId())
+                .postFkMember(member)
                 .build();
 
         postRep.save(newPost1);
@@ -92,15 +94,15 @@ class PostRepositoryTest {
     @Test
     void test_3() {
         Post newPost1 = Post.builder()
-                .postFkMember(1)
+                .postFkMember(member)
                 .build();
 
         Post newPost2 = Post.builder()
-                .postFkMember(2)
+                .postFkMember(member)
                 .build();
 
         Post newPost3 = Post.builder()
-                .postFkMember(3)
+                .postFkMember(member)
                 .build();
 
         postRep.save(newPost1);
@@ -116,7 +118,7 @@ class PostRepositoryTest {
     @Test
     void test_4(){
         Post newPost = Post.builder()
-                .postFkMember(member.getMemberId())
+                .postFkMember(member)
                 .build();
 
         postRep.save(newPost);
