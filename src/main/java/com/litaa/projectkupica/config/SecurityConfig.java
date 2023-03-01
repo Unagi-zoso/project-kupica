@@ -19,10 +19,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        if (isLocalMode()) {
             setLocalMode(http);
-        }
-        else {}
         return http.build();//.authorizeRequests().antMatchers("/").permitAll().and().build();
     }
 
@@ -34,19 +31,10 @@ public class SecurityConfig {
     private void setLocalMode(HttpSecurity http) throws Exception {
         http.antMatcher("/**")
                 .authorizeRequests()
-                .antMatchers("/", "/me", "/h2-console/**", "/login/**", "/js/**", "/css/**", "/image/**", "/fonts/**", "/favicon.ico").permitAll()
+                .antMatchers("/", "/**", "/me", "/h2-console/**", "/login/**", "/js/**", "/css/**", "/image/**", "/fonts/**", "/favicon.ico").permitAll()
                 .and().headers().frameOptions().sameOrigin()
                 .and().csrf().disable()
         ;
     }
-
-/*    private void setRealMode(HttpSecurity http) throws Exception {
-        http.antMatcher("/**")
-                .authorizeRequests()
-
-                .and().csrf().csrfTokenRepository(csrfTokenRepository())
-                .and().addFilterAfter(csrfHeaderFilter(), CsrfFilter.class)
-        ;
-    }*/
 }
 
