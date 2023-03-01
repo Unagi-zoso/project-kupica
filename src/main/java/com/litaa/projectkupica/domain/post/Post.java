@@ -3,6 +3,7 @@ package com.litaa.projectkupica.domain.post;
 import com.litaa.projectkupica.domain.member.Member;
 import com.litaa.projectkupica.domain.util.Auditable;
 import com.litaa.projectkupica.domain.util.EntityListener;
+import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,11 +28,12 @@ public class Post implements Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int postId;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
-    private Member postFkMember;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+
+    @Column(length = 300, nullable = false)
+    private String source;
+
+    @Column(columnDefinition = "TEXT", nullable = true)
     private String caption;
 
     LocalDateTime createdAt;
