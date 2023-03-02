@@ -1,9 +1,7 @@
 package com.litaa.projectkupica.domain.post;
 
-import com.litaa.projectkupica.domain.member.Member;
 import com.litaa.projectkupica.domain.util.Auditable;
 import com.litaa.projectkupica.domain.util.EntityListener;
-import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
