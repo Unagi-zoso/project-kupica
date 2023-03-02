@@ -1,48 +1,57 @@
 package com.litaa.projectkupica.domain.util;
 
-import com.litaa.projectkupica.domain.member.Member;
-import com.litaa.projectkupica.domain.member.MemberRepository;
+import com.litaa.projectkupica.domain.post.Post;
+import com.litaa.projectkupica.domain.post.PostRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.annotation.DirtiesContext.MethodMode.BEFORE_METHOD;
 
 /**
  * @author : Unagi_zoso
  * @date : 2022-10-03
  */
+
+@ActiveProfiles("local")
 @Transactional
 @SpringBootTest
 class EntityListenerTest {
 
     @Autowired
-    MemberRepository memRep;
+    PostRepository postRep;
 
     @Autowired
     EntityManager em;
 
+    Post post1;
 
+    @BeforeEach
+    void beforeEach() {
+        post1 = Post.builder()
+                .source("/asdf.jpg")
+                .caption("좋은 사진")
+                .build();
+
+        postRep.save(post1);
+    }
 
     @DisplayName("1. PrePersist, PreUpdate 데이터 입력 시 정상작동")
     @Test
     void test_1(){
-        Member member = Member.builder()
-                .memberNickname("zoso")
-                .memberPassword("u1234")
-                .build();
 
-        memRep.save(member);
-
-        assertNotNull(memRep.findById(1).orElseThrow(RuntimeException::new).getCreatedAt());
-        assertNotNull(memRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedAt());
+        assertNotNull(postRep.findById(1).orElseThrow(RuntimeException::new).getCreatedAt());
+        assertNotNull(postRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedAt());
 
 
     }
@@ -51,28 +60,17 @@ class EntityListenerTest {
     @DisplayName("2. PreUpdate 수정 시 정상작동")
     @Test
     void test_2(){
-        Member member = Member.builder()
-                .memberNickname("zoso")
-                .memberPassword("u1234")
-                .build();
 
-        memRep.save(member);
+        LocalDateTime prevUpdate = postRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedAt();
 
-        System.out.println(memRep.findAll());
-
-        LocalDateTime prevUpdate = memRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedAt();
-
-        member.setMemberNickname("Unagi~");
-        memRep.save(member);
+        post1.setCaption("이 사진이 더 멋져!");
+        postRep.save(post1);
 
         em.flush();
 
-        LocalDateTime curUpdate = memRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedAt();
-        System.out.println(memRep.findAll());
+        LocalDateTime curUpdate = postRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedAt();
 
-        System.out.println(prevUpdate + "   " + curUpdate);
         assertNotEquals(prevUpdate, curUpdate);
-
 
     }
 }
