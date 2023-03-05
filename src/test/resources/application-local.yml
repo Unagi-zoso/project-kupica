@@ -15,7 +15,7 @@ spring:
     hibernate:
       naming:
         physical-strategy: com.litaa.projectkupica.config.SnakeCasePhysicalNameStrategy
-      ddl-auto: create
+      ddl-auto: create-drop
     show-sql: true
     defer-datasource-initialization: false
     database-platform: org.hibernate.dialect.H2Dialect
@@ -36,8 +36,8 @@ spring:
   sql:
     init:
       mode: embedded
-      #schema-locations: classpath:schema-h2.sql
-      #data-locations: classpath:data-h2.sql
+      schema-locations: classpath:schema-h2.sql
+      # data-locations: classpath:data-h2.sql
   h2:
     console:
       enabled: true
