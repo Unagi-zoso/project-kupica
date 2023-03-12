@@ -6,6 +6,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.persistence.EntityManager;
@@ -35,18 +39,24 @@ class PostRepositoryTest {
     void beforeEach() {
 
          post1 = Post.builder()
+                .password("1234")
                 .source("/asdf1.jpg")
                 .caption("좀 많이 어렵네..")
+                .eraseFlag(false)
                 .build();
 
         post2 = Post.builder()
+                .password("1234")
                 .source("/asdf2.jpg")
                 .caption("좀 많이 어렵네..")
+                .eraseFlag(true)
                 .build();
 
         post3 = Post.builder()
+                .password("1234")
                 .source("/asdf3.jpg")
                 .caption("좀 많이 어렵네..")
+                .eraseFlag(false)
                 .build();
 
         postRep.save(post1);
@@ -85,5 +95,16 @@ class PostRepositoryTest {
         postRep.deleteById(1);
 
         assertFalse(postRep.findById(1).isPresent());
+    }
+
+    @DisplayName("4. 지워진 post 빼고 페이지로 가져오기")
+    @Test
+    void test_5() {
+        int pageNum = 0;
+        int size = 3;
+        PageRequest pageRequest = PageRequest.of(pageNum, size);
+        Page<Post> page = postRep.findAllUnErased(pageRequest);
+
+        assertEquals(page.getContent().size(), 2);
     }
 }
