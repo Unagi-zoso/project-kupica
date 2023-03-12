@@ -26,13 +26,17 @@ public class Post implements Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int postId;
 
-
+    @Column(length = 14, nullable = false)
+    private String password;
 
     @Column(length = 300, nullable = false)
     private String source;
 
     @Column(columnDefinition = "TEXT", nullable = true)
     private String caption;
+
+    @Column(nullable = true)
+    private Boolean eraseFlag;
 
     LocalDateTime createdAt;
 
