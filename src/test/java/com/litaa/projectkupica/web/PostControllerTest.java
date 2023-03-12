@@ -73,10 +73,11 @@ class PostControllerTest {
     @DisplayName("포스트 페이지로 넘겨받기")
     @Test
     void findPostsByPageRequestTest() throws Exception {
+
         List<Post> posts = Stream.of(
-                Post.builder().password("qwer1234").source("/asdf.jpg").caption("1이얏").build(),
-                Post.builder().password("qwer1234").source("/asdf.jpg").caption("2이얏").build(),
-                Post.builder().password("qwer1234").source("/asdf.jpg").caption("3이얏").build()).collect(Collectors.toList());
+                Post.builder().password("qwer1234").source("/asdf.jpg").caption("1이얏").eraseFlag(false).build(),
+                Post.builder().password("qwer1234").source("/asdf.jpg").caption("2이얏").eraseFlag(false).build(),
+                Post.builder().password("qwer1234").source("/asdf.jpg").caption("3이얏").eraseFlag(false).build()).collect(Collectors.toList());
 
         PageDto pageDto = PageDto.builder()
                 .lastPageId(0)
