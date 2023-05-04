@@ -1,4 +1,4 @@
-package com.litaa.projectkupica.config.auth;
+/* package com.litaa.projectkupica.config.auth;
 
 import com.litaa.projectkupica.domain.member.Member;
 import lombok.Data;
@@ -13,7 +13,7 @@ import java.util.Map;
  * @author : Unagi_zoso
  * @date : 2022-12-31
  */
-
+/*
 @Data
 public class PrincipalDetails implements UserDetails {
     private static final long serialVersionUID = 1L;
@@ -44,5 +44,5 @@ public class PrincipalDetails implements UserDetails {
     @Override
     public boolean isEnabled() {return true;}
 
-
 }
+*/
