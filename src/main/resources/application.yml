@@ -6,12 +6,29 @@ server:
       charset: utf-8
       enabled: true
 
+# application.yml
+
 spring:
   profiles:
-    active: local
-
+    active: dev  # default application 파일의 이름
+                 # ex application-dev.yml -> dev
   jackson:
     property-naming-strategy: SNAKE_CASE
 
+cloud:
+  aws:
+    s3:
+      bucket: kupica-img
+      bucket-url: https://kupica-img.s3.ap-northeast-2.amazonaws.com/
+    credentials:
+      access-key: AKIASR6SI6SWOLISQ55H
+      secret-key: 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
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+
+
 file:
-   path: C:/photogram/images/
+  path: C:/project-kupica/
