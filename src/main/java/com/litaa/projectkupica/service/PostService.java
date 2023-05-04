@@ -106,7 +106,6 @@ public class PostService {
     }
 
     public List<Post> findPostsLatest5() {
-        System.out.println("Hello?");
         return postRepository.findPostsLatest5();
     }
 
