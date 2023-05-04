@@ -6,17 +6,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author : Unagi_zoso
@@ -38,26 +38,9 @@ class PostRepositoryTest {
     @BeforeEach
     void beforeEach() {
 
-         post1 = Post.builder()
-                .password("1234")
-                .source("/asdf1.jpg")
-                .caption("좀 많이 어렵네..")
-                .eraseFlag(false)
-                .build();
-
-        post2 = Post.builder()
-                .password("1234")
-                .source("/asdf2.jpg")
-                .caption("좀 많이 어렵네..")
-                .eraseFlag(true)
-                .build();
-
-        post3 = Post.builder()
-                .password("1234")
-                .source("/asdf3.jpg")
-                .caption("좀 많이 어렵네..")
-                .eraseFlag(false)
-                .build();
+        post1 = Post.builder().password("1234").source("/asdf1.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").eraseFlag(0).build();
+        post2 = Post.builder().password("1234").source("/asdf2.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").eraseFlag(1).build();
+        post3 = Post.builder().password("1234").source("/asdf3.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").eraseFlag(0).build();
 
         postRep.save(post1);
         postRep.save(post2);
@@ -72,7 +55,7 @@ class PostRepositoryTest {
 
     @DisplayName("1. post 생성")
     @Test
-    void test_1(){
+    void testCreatePost(){
 
         assertEquals(postRep.findById(1).orElseThrow(RuntimeException::new).getCaption(), "좀 많이 어렵네..");
         assertEquals(postRep.findById(1).orElseThrow(RuntimeException::new).getPostId(), 1);
@@ -82,7 +65,7 @@ class PostRepositoryTest {
 
     @DisplayName("2. 전체 post 목록 가져오기")
     @Test
-    void test_2(){
+    void testFindAll(){
 
         assertEquals(postRep.findAll().size(), 3);
         em.flush();
@@ -90,7 +73,7 @@ class PostRepositoryTest {
 
     @DisplayName("3. post 삭제")
     @Test
-    void test_4(){
+    void testDeleteById(){
 
         postRep.deleteById(1);
 
@@ -99,12 +82,45 @@ class PostRepositoryTest {
 
     @DisplayName("4. 지워진 post 빼고 페이지로 가져오기")
     @Test
-    void test_5() {
+    void testFindAllUnErased() {
+
         int pageNum = 0;
         int size = 3;
         PageRequest pageRequest = PageRequest.of(pageNum, size);
+
         Page<Post> page = postRep.findAllUnErased(pageRequest);
 
         assertEquals(page.getContent().size(), 2);
+    }
+
+    @DisplayName("5. 최근에 등록된 post 5개 가져오기")
+    @Test
+    void testFindPostsLatest5() {
+
+        Post post4 = Post.builder().password("1234").source("/asdf4.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").eraseFlag(0).build();
+        Post post5 = Post.builder().password("1234").source("/asdf5.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").eraseFlag(1).build();
+        postRep.save(post4);
+        postRep.save(post5);
+
+        List<Post> posts = postRep.findPostsLatest5();
+
+        int actualReturn = 3; // before each num of 0 erase_flag is 2, this scope's is 1
+        assertNotNull(posts);
+        assertEquals(posts.size(), actualReturn);
+    }
+
+    @DisplayName("6. post의 eraseFlag를 true로 변경하기")
+    @Test
+    void When_EraseFlagWasNotUpdated_Then_False() {
+        Post post4 = Post.builder().password("1234").source("/asdf1.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp")
+                .eraseFlag(0)
+                .build();
+        postRep.save(post4);
+
+        int postId = post4.getPostId();
+        postRep.updatePostErasedTrue(postId);
+
+        int postEraseFlag = postRep.findById(postId).orElseThrow(RuntimeException::new).getEraseFlag();
+        assertEquals(postEraseFlag, 1);
     }
 }
