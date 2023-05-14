@@ -18,7 +18,7 @@ spring:
       ddl-auto: create-drop
     show-sql: true
     defer-datasource-initialization: false
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MariaDBDialect
     properties:
       hibernate.dialect: org.hibernate.dialect.H2Dialect
     generate-ddl: false
