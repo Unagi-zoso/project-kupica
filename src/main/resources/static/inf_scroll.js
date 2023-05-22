@@ -123,8 +123,6 @@ const drawList = (DATA) => {
         DIV_INPUT_FORM.append(BTN_DELETE);
         DIV_INPUT_FORM.append(BTN_CLOSE_DELETE_MODAL);
 
-        if (index === DATA.length - 1) lastId = post_id; // 마지막건 ID 저장
-
         DIV_ELE_4.append(P_ELE);
         A_CARD_BACKGROUND.append(DIV_ELE_3);
         DIV_IMG_FRAME.append(IMG_ELE, A_CARD_BACKGROUND);
@@ -133,6 +131,7 @@ const drawList = (DATA) => {
 
         document.querySelector("#scroll-row").append(DIV_CARD);
     });
+
     isFetching = false; // callback이 끝났으니 isFetching 리셋
 };
 
@@ -192,7 +191,7 @@ const deletePost = (post_id, password) => {
 
 window.addEventListener("scroll", function () {
 
-    const isAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight;
+    const isAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500;
 
     if (isAtBottom && !isFetching) { // isFetching이 false일 때 조건 추가
         queryGetList();
