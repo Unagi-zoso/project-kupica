@@ -21,14 +21,10 @@ cloud:
       bucket: kupica-img
       bucket-url: https://kupica-img.s3.ap-northeast-2.amazonaws.com/
     credentials:
-      access-key: AKIASR6SI6SWOLISQ55H
-      secret-key: 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
+      access-key: 
+      secret-key: 
     region:
       static: ap-northeast-2
       auto: false
     stack:
       auto: false
-
-
-file:
-  path: C:/project-kupica/
