@@ -19,10 +19,15 @@ cloud:
   aws:
     s3:
       bucket: kupica-img
-      bucket-url: https://kupica-img.s3.ap-northeast-2.amazonaws.com/
+      bucket-url: 
     credentials:
+<<<<<<< Updated upstream
       access-key: 
       secret-key: 
+=======
+      access-key:
+      secret-key:
+>>>>>>> Stashed changes
     region:
       static: ap-northeast-2
       auto: false
