@@ -109,6 +109,7 @@ public class PostService {
         return postRepository.findPostsLatest5();
     }
 
+    @Transactional
     public void updatePostErasedTrue(Integer id, String password) {
         String realPassword = postRepository.findPasswordById(id);
         if (password.equals(realPassword)) {
