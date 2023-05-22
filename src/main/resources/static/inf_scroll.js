@@ -1,4 +1,5 @@
 let isFetching = false;
+let isQuerying = false;
 const defaultPaginationSize = 6;
 const URL = "paging";
 const DownloadURL = "download";
@@ -190,14 +191,24 @@ const deletePost = (post_id, password) => {
 };
 
 window.addEventListener("scroll", function () {
-    const SCROLLED_HEIGHT = window.scrollY;
-    const WINDOW_HEIGHT = window.innerHeight;
-    const DOC_TOTAL_HEIGHT = document.body.offsetHeight;
-    const IS_BOTTOM = (WINDOW_HEIGHT + SCROLLED_HEIGHT > DOC_TOTAL_HEIGHT - 500);
 
-    if (IS_BOTTOM && !isFetching) { // isFetching이 false일 때 조건 추가
-        getList();
+    const isAtBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight;
+
+    if (isAtBottom && !isFetching) { // isFetching이 false일 때 조건 추가
+        queryGetList();
     }
 });
 
+function queryGetList() {
+    if (isQuerying) {
+        return;
+    }
 
+    isQuerying = true;
+
+    getList();
+
+    setTimeout(() => {
+        isQuerying = false; // 딜레이가 종료되면 쿼리 실행 상태를 false로 설정합니다.
+    }, 300);
+}
