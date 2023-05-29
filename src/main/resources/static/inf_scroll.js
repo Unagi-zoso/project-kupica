@@ -17,6 +17,7 @@ const drawList = (DATA) => {
         DIV_CARD.setAttribute("class", "mb-4");
         DIV_CARD.setAttribute("class", "card");
         DIV_CARD.setAttribute("style", "width: 38rem");
+        DIV_CARD.setAttribute("id", "card" + post_id);
 
         const DIV_IMG_FRAME = document.createElement('div');
         DIV_IMG_FRAME.setAttribute("class", "bg-image");
@@ -28,8 +29,19 @@ const drawList = (DATA) => {
         DIV_IMG_FRAME.setAttribute("data-mdb-ripple-color", "light");
 
         const IMG_ELE = document.createElement('img');
-        IMG_ELE.setAttribute("class", "w-100");
         IMG_ELE.setAttribute("src", source);
+
+        var img = new Image();
+        img.src = source;
+        var img_width = img.width;
+        var img_height = img.height;
+
+        if (img_width > img_height) {
+            IMG_ELE.setAttribute("class", "w-100");
+        } else {
+            IMG_ELE.setAttribute("style", "object-fit: cover; display: flex")
+
+        }
 
         const A_CARD_BACKGROUND = document.createElement('a');
         A_CARD_BACKGROUND.setAttribute("href", "몰라유...");
@@ -101,6 +113,10 @@ const drawList = (DATA) => {
         BTN_CLOSE_DELETE_MODAL.setAttribute("id", "modal_close_btn");
         BTN_CLOSE_DELETE_MODAL.innerText = "창 닫기";
 
+        const DIV_TOAST_DELETE_FAIL = document.createElement('div');
+        DIV_TOAST_DELETE_FAIL.setAttribute("id", "toast-delete-fail" + post_id);
+        DIV_TOAST_DELETE_FAIL.setAttribute("class", "toast")
+
         A_ELE_3.addEventListener("click", function () {
             const evTarget = document.getElementById(delete_modal_id);
             if(evTarget.classList.contains("modal-overlay")) {
@@ -122,12 +138,24 @@ const drawList = (DATA) => {
         DIV_INPUT_FORM.append(INPUT_PASSWORD);
         DIV_INPUT_FORM.append(BTN_DELETE);
         DIV_INPUT_FORM.append(BTN_CLOSE_DELETE_MODAL);
+        DIV_INPUT_FORM.append(DIV_TOAST_DELETE_FAIL)
 
         DIV_ELE_4.append(P_ELE);
         A_CARD_BACKGROUND.append(DIV_ELE_3);
         DIV_IMG_FRAME.append(IMG_ELE, A_CARD_BACKGROUND);
-        DIV_CARD.append(DIV_IMG_FRAME, DIV_ELE_4, A_ELE_2, A_ELE_3);
-        DIV_CARD.append(DIV_MOD_ELE_0);
+        DIV_CARD.append(DIV_IMG_FRAME);
+
+        const DIV_GREAT_HEIGHT = document.createElement('div');
+        if (img_width > img_height) {
+            DIV_CARD.append(DIV_ELE_4, A_ELE_2, A_ELE_3, DIV_MOD_ELE_0);
+        } else {
+            IMG_ELE.setAttribute("style", "width: 70%");
+            DIV_GREAT_HEIGHT.append(DIV_ELE_4, A_ELE_2, A_ELE_3, DIV_MOD_ELE_0);
+            DIV_GREAT_HEIGHT.setAttribute("style", "display: flex; flex-direction: column; overflow: hidden");
+            DIV_IMG_FRAME.append(DIV_GREAT_HEIGHT);
+            DIV_IMG_FRAME.setAttribute("style", "display: flex");
+        }
+
 
         document.querySelector("#scroll-row").append(DIV_CARD);
     });
@@ -184,7 +212,13 @@ const deletePost = (post_id, password) => {
             "password" : password
         })
     })
+        .then(() => {
+            const post_to_delete = document.getElementById("card" + post_id);
+            const parent_ele = document.querySelector("#scroll-row");
+            parent_ele.removeChild(post_to_delete);
+    })
         .catch((e) => {
+            showToast("toast-delete-fail" + post_id, "비밀번호가 틀렸습니다.");
             console.log(e);
         });
 };
@@ -210,4 +244,13 @@ function queryGetList() {
     setTimeout(() => {
         isQuerying = false; // 딜레이가 종료되면 쿼리 실행 상태를 false로 설정합니다.
     }, 300);
+}
+
+function showToast(id, message) {
+    var toast = document.getElementById(id);
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(function() {
+        toast.classList.remove('show');
+    }, 3000); // 3초 후 토스트 메시지 숨김
 }
