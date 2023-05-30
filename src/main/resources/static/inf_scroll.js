@@ -219,6 +219,7 @@ const deletePost = (post_id, password) => {
     })
         .catch((e) => {
             showToast("toast-delete-fail" + post_id, "비밀번호가 틀렸습니다.");
+            alert("비밀번호가 틀렸습니다.");
             console.log(e);
         });
 };
@@ -240,6 +241,7 @@ function queryGetList() {
     isQuerying = true;
 
     getList();
+
 
     setTimeout(() => {
         isQuerying = false; // 딜레이가 종료되면 쿼리 실행 상태를 false로 설정합니다.
