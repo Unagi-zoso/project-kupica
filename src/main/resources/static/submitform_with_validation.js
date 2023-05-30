@@ -1,7 +1,8 @@
 function submitForm(event) {
     event.preventDefault(); // 폼 제출 기본 동작 막기
 
-    var fileInput = document.getElementById('fileInput');
+    var fileInput = document.getElementById('image-chooser');
+    console.log(fileInput)
     var selectedFile = fileInput.files[0];
     var allowedExtensions = ['.jpg', '.png', '.gif', '.jpeg'];
 
@@ -14,23 +15,36 @@ function submitForm(event) {
         }
 
         var formData = new FormData();
+
+        var captionInput = document.getElementById("caption-input");
+        var passwordInput = document.getElementById("password-input");
+
         formData.append('file', selectedFile);
+        formData.append('caption', captionInput.value);
+        formData.append('password', passwordInput.value);
 
         // Fetch 요청 보내기
-        fetch('/post/upload', {
+        fetch('post/upload', {
             method: 'POST',
             body: formData
         })
             .then(function(response) {
+
                 if (response.ok) {
-                    alert('파일 업로드 성공!');
+                    resetModalUploadForm();
                 } else {
                     alert('파일 업로드 실패!');
                 }
-            })
-            .catch(function(error) {
-                alert('파일 업로드 중 오류가 발생했습니다.');
-                console.error(error);
-            });
+            }) .catch(reason => {
+                console.error(reason);
+        })
+
     }
+}
+
+function resetModalUploadForm() {
+    document.getElementById('modal').style.display = "none";
+    document.getElementById('preview-image').innerHTML = "";
+    document.getElementById('file-info').innerHTML = "";
+    document.getElementById('upload-form').reset();
 }
