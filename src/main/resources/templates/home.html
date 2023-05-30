@@ -23,8 +23,6 @@
         </div>
     </div>
 
-
-
     <div id="modal-btn">
         <button class="btn-outline-secondary" id="modal_open_btn" type="button">
             <span aria-hidden="true">
@@ -50,17 +48,17 @@
 <div id="modal" class="modal modal-overlay upload-modal">
     <div class="modal-window">
         <div class="content">
-            <form id="upload-from" onsubmit="submitForm(event)" class="upload-form" >
-                <input type="file" name="file" accept=".jpg, .png, .gif, .jpeg" onchange="fileSelectionWithValidation(event)" required/>
+            <form id="upload-form" onsubmit="submitForm(event)" class="upload-form" >
+                <input id="image-chooser" type="file" name="file" accept=".jpg, .png, .gif, .jpeg" onchange="fileSelectionWithValidation(event)" required/>
                 <div id="preview-image"></div>
                 <div id="file-info"></div>
                 <div class="upload-form-detail">
-                    <input type="text" placeholder="사진설명" name="caption" />
-                    <input type="password" placeholder="비밀번호 반드시!" name="password" required/>
+                    <input id="caption-input" type="text" placeholder="사진설명" name="caption" />
+                    <input id="password-input" type="password" placeholder="비밀번호 반드시!" name="password" required/>
                 </div>
+                <button id="modal_upload_btn" class="cta blue">업로드</button>
+                <button type="button" id="modal_close_btn">창 닫기</button>
             </form>
-            <button id="modal_upload_btn" class="cta blue">업로드</button>
-            <button type="button" id="modal_close_btn">창 닫기</button>
         </div>
     </div>
 </div>
@@ -74,11 +72,11 @@
 
 <!-- Optional JavaScript; choose one of the two! -->
 <script type="text/javascript" src="/inf_scroll.js"></script>
+<script type="text/javascript" src="/select_image_validation.js"></script>
+<script type="text/javascript" src="/submitform_with_validation.js"></script>
 <script type="text/javascript" src="/upload_modal.js"></script>
 <script type="text/javascript" src="/podium_img.js"></script>
 <script type="text/javascript" src="/preview_image.js"></script>
-<script type="text/javascript" src="/select_image_validation.js"></script>
-<script type="text/javascript" src="/submitform_with_validation.js"></script>
 
 <!-- Option 1: Bootstrap Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
