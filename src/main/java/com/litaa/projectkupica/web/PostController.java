@@ -6,6 +6,8 @@ import com.litaa.projectkupica.web.dto.DeletePostFormDto;
 import com.litaa.projectkupica.web.dto.PageDto;
 import com.litaa.projectkupica.web.dto.PostDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -24,15 +26,14 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/post/upload")
-    public String uploadPost(PostDto postDto) throws IOException {
-        postService.uploadPost(postDto);
-        return "redirect:/";
+    public ResponseEntity<Void> uploadPost(PostDto postDto) throws IOException {
+        HttpStatus resStatus = postService.uploadPost(postDto).getStatusCode();
+        return new ResponseEntity<>(resStatus);
     }
 
     @PostMapping("/post/delete")
-    public String deletePost(@RequestBody DeletePostFormDto deletePostFormDto) {
-        postService.updatePostErasedTrue(deletePostFormDto.getId(), deletePostFormDto.getPassword());
-        return "redirect:/";
+    public ResponseEntity<?> deletePost(@RequestBody DeletePostFormDto deletePostFormDto) {
+        return postService.updatePostErasedTrue(deletePostFormDto.getId(), deletePostFormDto.getPassword());
     }
 
     @GetMapping("/download")
