@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.litaa.projectkupica.domain.post.Post;
 import com.litaa.projectkupica.service.PostService;
 import com.litaa.projectkupica.web.dto.PageDto;
+import com.litaa.projectkupica.web.dto.PostDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,6 +19,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,12 +30,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 /**
  * @author : Unagi_zoso
@@ -50,6 +53,10 @@ class PostControllerTest {
     @MockBean
     PostService postService;
 
+    /**
+     * @see com.litaa.projectkupica.service.PostService#uploadPost(PostDto) 
+     * @throws Exception
+     */
     @DisplayName("post 업로드 하기")
     @Test
     void testUploadPost() throws Exception {
@@ -66,14 +73,22 @@ class PostControllerTest {
                 fileInputStream
         );
 
+        PostDto postDto = PostDto.builder()
+                .password("qwer1234")
+                .caption("실로.. 좋은 사진이로다..")
+                .build();
+
+        when(postService.uploadPost(any(PostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
         mockMvc.perform(
                 multipart("/post/upload")
                         .file(testImage1)
-                        .param("password", "qwer1234")
-                        .param("caption", "실로.. 좋은 사진이로다..")
+                        .param("password", postDto.getPassword())
+                        .param("caption", postDto.getCaption())
                         .with(csrf()))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        verify(postService, times(1)).uploadPost(any(PostDto.class));
     }
 
     @DisplayName("post 페이지로 넘겨받기")
