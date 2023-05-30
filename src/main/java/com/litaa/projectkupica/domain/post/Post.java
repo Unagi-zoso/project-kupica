@@ -26,7 +26,7 @@ public class Post implements Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer postId;
 
-    @Column(length = 14, nullable = false)
+    @Column(length = 160, nullable = false)
     private String password;
 
     @Column(length = 300, nullable = false)
