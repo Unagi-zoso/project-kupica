@@ -9,10 +9,12 @@ import com.litaa.projectkupica.web.dto.PostDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +38,10 @@ public class PostService {
     private String bucketUrl;
     private final AmazonS3Client amazonS3Client;
     private final PostRepository postRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void uploadPost(PostDto postDto) throws IOException {
+    public ResponseEntity<?> uploadPost(PostDto postDto) throws IOException {
         UUID uuid = UUID.randomUUID(); // uuid
         String imageFileName = uuid+"_"+postDto.getFile().getOriginalFilename(); // 1.jpg
         long imageSize = postDto.getFile().getSize();
@@ -56,13 +59,15 @@ public class PostService {
 
         // image 테이블에 저장
 
-        String downloadUrl = imagePath.substring(bucketUrl.length(), imagePath.length());
+        String downloadUrl = imagePath.substring(bucketUrl.length());
 
-        Post post = postDto.toEntity(imagePath, downloadUrl); // 5cf6237d-c404-43e5-836b-e55413ed0e49_bag.jpeg
+        Post post = postDto.toEntity(imagePath, downloadUrl);
+        post.setPassword(passwordEncoder.encode(post.getPassword()));
 
         post.setEraseFlag(0);
 
         postRepository.save(post);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public ResponseEntity<byte[]> download(String storedFileUrl) throws IOException {
@@ -100,8 +105,8 @@ public class PostService {
     }
 
     public List<Post> findPostsByPageRequest(Integer page, Integer size) {
-
-        PageRequest pageRequest = PageRequest.of(page, size);
+        Sort sort = Sort.by(Sort.Direction.DESC, "post_id");
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
         return postRepository.findAllUnErased(pageRequest).getContent();
     }
 
@@ -110,13 +115,18 @@ public class PostService {
     }
 
     @Transactional
-    public void updatePostErasedTrue(Integer id, String password) {
+    public ResponseEntity<?> updatePostErasedTrue(Integer id, String password) {
         String realPassword = postRepository.findPasswordById(id);
-        if (password.equals(realPassword)) {
+        if (isPasswordValid(password, realPassword)) {
             postRepository.updatePostErasedTrue(id);
+            return ResponseEntity.status(HttpStatus.OK).build();
         }
         else {
-            System.out.println("비밀번호가 틀립니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 틀립니다.");
         }
+    }
+
+    public boolean isPasswordValid(String password, String encodedPassword) {
+        return passwordEncoder.matches(password, encodedPassword);
     }
 }
