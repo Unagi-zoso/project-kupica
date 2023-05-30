@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @EnableWebSecurity
@@ -19,8 +21,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-            setLocalMode(http);
+        setLocalMode(http);
         return http.build();//.authorizeRequests().antMatchers("/").permitAll().and().build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     private boolean isLocalMode() {
@@ -31,10 +38,9 @@ public class SecurityConfig {
     private void setLocalMode(HttpSecurity http) throws Exception {
         http.antMatcher("/**")
                 .authorizeRequests()
-                .antMatchers("/", "/**", "/me", "/h2-console/**", "/login/**", "/js/**", "/css/**", "/image/**", "/fonts/**", "/favicon.ico").permitAll()
+                .antMatchers("/", "/**", "/me", "/h2-console/**", "/login/**", "/js/**", "/css/**", "/image/**", "/fonts/**", "/favicon.ico", "/post/upload/**").permitAll()
                 .and().headers().frameOptions().sameOrigin()
                 .and().csrf().disable()
         ;
     }
 }
-
