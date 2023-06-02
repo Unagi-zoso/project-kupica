@@ -9,12 +9,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -122,5 +122,41 @@ class PostRepositoryTest {
 
         int postEraseFlag = postRep.findById(postId).orElseThrow(RuntimeException::new).getEraseFlag();
         assertEquals(postEraseFlag, 1);
+    }
+
+    @DisplayName("7. 지워진 post 빼고 페이지로 가져오기")
+    @Test
+    void testFindAllUnErasedPageSize8() {
+
+        int pageNum = 0;
+        int size = 6;
+        PageRequest pageRequest = PageRequest.of(pageNum, size);
+
+        Page<Post> page = postRep.findAllUnErased(pageRequest);
+
+        assertEquals(page.getContent().size(), 2);
+    }
+
+    @DisplayName("8. post 업데이트하기")
+    @Test
+    void testUpdatePost() {
+
+        Post testPost = postRep.findById(post1.getPostId()).orElseThrow(RuntimeException::new);
+
+        String prevCaption = testPost.getCaption();
+        String prevSource = testPost.getSource();
+        String prevDownloadKey = testPost.getDownloadKey();
+
+        postRep.updatePost(post1.getPostId(), "참 멋진 사진에요.", "S3:kupikupi", "Down:kupikupi");
+
+        testPost = postRep.findById(post1.getPostId()).orElseThrow(RuntimeException::new);
+
+        String curCaption = testPost.getCaption();
+        String curSource = testPost.getSource();
+        String curDownloadKey = testPost.getDownloadKey();
+
+        assertNotEquals(curCaption, prevCaption);
+        assertNotEquals(curSource, prevSource);
+        assertNotEquals(curDownloadKey, prevDownloadKey);
     }
 }
