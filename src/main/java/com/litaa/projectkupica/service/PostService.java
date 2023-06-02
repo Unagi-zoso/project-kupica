@@ -6,6 +6,7 @@ import com.amazonaws.util.IOUtils;
 import com.litaa.projectkupica.domain.post.Post;
 import com.litaa.projectkupica.domain.post.PostRepository;
 import com.litaa.projectkupica.web.dto.PostDto;
+import com.litaa.projectkupica.web.dto.UpdatePostFormDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -17,9 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,8 +35,8 @@ import java.util.UUID;
 @Service
 public class PostService {
 
-    // @Value("cloud.aws.s3.bucket")
-    private String s3Bucket = "kupica-img";
+    @Value("${cloud.aws.s3.bucket}")
+    private String s3Bucket;
     @Value("${cloud.aws.s3.bucket-url}")
     private String bucketUrl;
     private final AmazonS3Client amazonS3Client;
@@ -42,40 +45,42 @@ public class PostService {
 
     @Transactional
     public ResponseEntity<?> uploadPost(PostDto postDto) throws IOException {
-        UUID uuid = UUID.randomUUID(); // uuid
-        String imageFileName = uuid+"_"+postDto.getFile().getOriginalFilename(); // 1.jpg
-        long imageSize = postDto.getFile().getSize();
 
-        ObjectMetadata objectMetaData = new ObjectMetadata();
-        objectMetaData.setContentType(postDto.getFile().getContentType());
-        objectMetaData.setContentLength(imageSize);
+        ArrayList<String> S3UploadResult = uploadImageToS3Bucket(postDto.getFile());
 
-        amazonS3Client.putObject(
-                new PutObjectRequest(s3Bucket, imageFileName, postDto.getFile().getInputStream(), objectMetaData)
-                        .withCannedAcl(CannedAccessControlList.PublicRead)
-        );
-
-        String imagePath = amazonS3Client.getUrl(s3Bucket, imageFileName).toString();
-
-        // image 테이블에 저장
-
-        String downloadUrl = imagePath.substring(bucketUrl.length());
+        String imagePath = S3UploadResult.get(0);
+        String downloadUrl = S3UploadResult.get(1);
 
         Post post = postDto.toEntity(imagePath, downloadUrl);
         post.setPassword(passwordEncoder.encode(post.getPassword()));
-
         post.setEraseFlag(0);
 
         postRepository.save(post);
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public ResponseEntity<?> updatePost(UpdatePostFormDto updatePostFormDto) throws IOException {
+
+        String realPassword = postRepository.findPasswordById(updatePostFormDto.getId());
+        if (!isPasswordValid(updatePostFormDto.getPassword(), realPassword)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 틀립니다.");
+        }
+
+        ArrayList<String> S3UploadResult = uploadImageToS3Bucket(updatePostFormDto.getFile());
+
+        String imagePath = S3UploadResult.get(0);
+        String downloadUrl = S3UploadResult.get(1);
+
+        postRepository.updatePost(updatePostFormDto.getId(), updatePostFormDto.getCaption(), imagePath, downloadUrl);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     public ResponseEntity<byte[]> download(String storedFileUrl) throws IOException {
-        System.out.println(storedFileUrl);
+
         S3Object s3Object = amazonS3Client.getObject(new GetObjectRequest(s3Bucket, storedFileUrl));
         S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
         byte[] bytes = IOUtils.toByteArray(objectInputStream);
-
 
         String fileName = URLEncoder.encode(storedFileUrl, "UTF-8").replaceAll("\\+", "%20");
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -86,7 +91,34 @@ public class PostService {
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
+
+    private ArrayList<String> uploadImageToS3Bucket(MultipartFile file) throws IOException {
+
+        UUID uuid = UUID.randomUUID(); // uuid
+        String imageFileName = uuid+"_"+file.getOriginalFilename(); // 1.jpg
+        long imageSize = file.getSize();
+
+        ObjectMetadata objectMetaData = new ObjectMetadata();
+        objectMetaData.setContentType(file.getContentType());
+        objectMetaData.setContentLength(imageSize);
+
+        amazonS3Client.putObject(
+                new PutObjectRequest(s3Bucket, imageFileName, file.getInputStream(), objectMetaData)
+                        .withCannedAcl(CannedAccessControlList.PublicRead)
+        );
+
+        String imagePath = amazonS3Client.getUrl(s3Bucket, imageFileName).toString();
+        String downloadUrl = imagePath.substring(bucketUrl.length());
+
+        ArrayList<String> S3UploadResult = new ArrayList<>();
+
+        S3UploadResult.add(imagePath);
+        S3UploadResult.add(downloadUrl);
+
+        return S3UploadResult;
+    }
     private MediaType contentType(String keyName) {
+
         String[] arr = keyName.split("\\.");
         String type = arr[arr.length - 1];
 
@@ -105,28 +137,31 @@ public class PostService {
     }
 
     public List<Post> findPostsByPageRequest(Integer page, Integer size) {
+
         Sort sort = Sort.by(Sort.Direction.DESC, "post_id");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
         return postRepository.findAllUnErased(pageRequest).getContent();
     }
 
     public List<Post> findPostsLatest5() {
+
         return postRepository.findPostsLatest5();
     }
 
     @Transactional
     public ResponseEntity<?> updatePostErasedTrue(Integer id, String password) {
+
         String realPassword = postRepository.findPasswordById(id);
-        if (isPasswordValid(password, realPassword)) {
-            postRepository.updatePostErasedTrue(id);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        }
-        else {
+        if (!isPasswordValid(password, realPassword)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 틀립니다.");
         }
+
+        postRepository.updatePostErasedTrue(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     public boolean isPasswordValid(String password, String encodedPassword) {
+
         return passwordEncoder.matches(password, encodedPassword);
     }
 }
