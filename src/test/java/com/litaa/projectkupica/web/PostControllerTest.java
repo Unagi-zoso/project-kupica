@@ -3,11 +3,12 @@ package com.litaa.projectkupica.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.litaa.projectkupica.domain.post.Post;
 import com.litaa.projectkupica.service.PostService;
+import com.litaa.projectkupica.web.dto.DeletePostFormDto;
 import com.litaa.projectkupica.web.dto.PageDto;
 import com.litaa.projectkupica.web.dto.PostDto;
+import com.litaa.projectkupica.web.dto.UpdatePostFormDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -52,6 +53,9 @@ class PostControllerTest {
     MockMvc mockMvc;
     @MockBean
     PostService postService;
+
+    @Autowired
+    PostController postController;
 
     /**
      * @see com.litaa.projectkupica.service.PostService#uploadPost(PostDto) 
@@ -116,12 +120,13 @@ class PostControllerTest {
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(content().json(ret));
+
     }
 
     @DisplayName("post 이미지 다운로드받기")
     @Test
     void testDownload() throws IOException {
-        PostService postService = Mockito.mock(PostService.class);
+
         final String pathName = "src/test/resources/testimage/testimage1.jpg";
         File file = new File(pathName);
         byte[] mockImageData = Files.readAllBytes(file.toPath());
@@ -131,9 +136,8 @@ class PostControllerTest {
         httpHeaders.setContentLength(mockImageData.length);
         httpHeaders.setContentDispositionFormData("attachment", "testimage1");
 
-        when(postService.download(pathName)).thenReturn(new ResponseEntity<>(mockImageData, httpHeaders, HttpStatus.OK));
 
-        PostController postController = new PostController(postService);
+        when(postService.download(pathName)).thenReturn(new ResponseEntity<>(mockImageData, httpHeaders, HttpStatus.OK));
 
         // when
         ResponseEntity<byte[]> response = postController.download(pathName);
@@ -148,5 +152,57 @@ class PostControllerTest {
         assertNotNull(downloadedImageData);
         assertEquals(mockImageData.length, downloadedImageData.length);
         assertArrayEquals(mockImageData, downloadedImageData);
+    }
+
+    @DisplayName("post 삭제하기 ")
+    @Test
+    void testDeletePost() {
+
+        DeletePostFormDto deletePostFormDto = DeletePostFormDto.builder()
+                .id(1)
+                .password("qwer1234")
+                .build();
+
+        when(postService.updatePostErasedTrue(deletePostFormDto.getId(), deletePostFormDto.getPassword()))
+                .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        // when
+        ResponseEntity<?> response = postController.deletePost(deletePostFormDto);
+
+        // then
+        assertEquals(HttpStatus.OK,response.getStatusCode());
+    }
+
+    @DisplayName("post 수정하기 ")
+    @Test
+    void testUpdatePost() throws IOException {
+
+        final String fileName = "testimage1"; //파일명
+        final String contentType = "jpg"; //파일타입
+        final String filePath = "src/test/resources/testimage/"+fileName+"."+contentType; //파일경로
+        FileInputStream fileInputStream = new FileInputStream(filePath);
+
+        MockMultipartFile testImage1 = new MockMultipartFile(
+                "testImage1", //name
+                fileName + "." + contentType, //originalFilename
+                contentType,
+                fileInputStream
+        );
+
+        UpdatePostFormDto updatePostFormDto = UpdatePostFormDto.builder()
+                .id(1)
+                .caption("해는 뜬다.")
+                .file(testImage1)
+                .password("qwer1234")
+                .build();
+
+        when(postService.updatePost(updatePostFormDto))
+                .thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        // when
+        ResponseEntity<?> response = postController.updatePost(updatePostFormDto);
+
+        // then
+        assertEquals(HttpStatus.OK,response.getStatusCode());
     }
 }
