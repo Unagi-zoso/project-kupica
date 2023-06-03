@@ -137,9 +137,9 @@ class PostRepositoryTest {
         assertEquals(page.getContent().size(), 2);
     }
 
-    @DisplayName("8. post 업데이트하기")
+    @DisplayName("8. 새로운 사진으로 post 업데이트하기")
     @Test
-    void testUpdatePost() {
+    void testUpdatePostWithNewImage() {
 
         Post testPost = postRep.findById(post1.getPostId()).orElseThrow(RuntimeException::new);
 
@@ -147,7 +147,7 @@ class PostRepositoryTest {
         String prevSource = testPost.getSource();
         String prevDownloadKey = testPost.getDownloadKey();
 
-        postRep.updatePost(post1.getPostId(), "참 멋진 사진에요.", "S3:kupikupi", "Down:kupikupi");
+        postRep.updatePostWithNewImage(post1.getPostId(), "참 멋진 사진에요.", "S3:kupikupi", "Down:kupikupi");
 
         testPost = postRep.findById(post1.getPostId()).orElseThrow(RuntimeException::new);
 
@@ -158,5 +158,22 @@ class PostRepositoryTest {
         assertNotEquals(curCaption, prevCaption);
         assertNotEquals(curSource, prevSource);
         assertNotEquals(curDownloadKey, prevDownloadKey);
+    }
+
+    @DisplayName("9. 새로운 사진 없이 post 업데이트하기")
+    @Test
+    void testUpdatePostWithoutNewImage() {
+
+        Post testPost = postRep.findById(post1.getPostId()).orElseThrow(RuntimeException::new);
+
+        String prevCaption = testPost.getCaption();
+
+        postRep.updatePostWithoutNewImage(post1.getPostId(), "참 멋진 사진에요.");
+
+        testPost = postRep.findById(post1.getPostId()).orElseThrow(RuntimeException::new);
+
+        String curCaption = testPost.getCaption();
+
+        assertNotEquals(curCaption, prevCaption);
     }
 }
