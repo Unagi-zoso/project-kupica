@@ -1,6 +1,6 @@
-function previewImage(event) {
+function previewImage(event, id) {
   var input = event.target;
-  var preview = document.querySelector("#preview-image");
+  var preview = document.querySelector("#"+id);
   if (input.files && input.files[0]) {
     var reader = new FileReader();
     reader.onload = function (e) {
@@ -24,4 +24,10 @@ function previewImage(event) {
   }
 }
 
-document.querySelector("#image-chooser").addEventListener("change", previewImage);
+document.querySelector("#image-chooser").onchange = function() {
+  previewImage(event, "preview-image");
+}
+
+document.querySelector("#update-image-chooser").onchange = function() {
+  previewImage(event, "update-preview-image");
+}
