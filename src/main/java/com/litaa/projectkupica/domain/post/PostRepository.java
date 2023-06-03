@@ -28,6 +28,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE post SET post.caption =  ?2, post.source = ?3, post.download_key = ?4 WHERE post.post_id = ?1", nativeQuery = true)
-    void updatePost(int id, String caption, String source, String downloadKey);
+    void updatePostWithNewImage(int id, String caption, String source, String downloadKey);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE post SET post.caption =  ?2 WHERE post.post_id = ?1", nativeQuery = true)
+    void updatePostWithoutNewImage(int id, String caption);
 
 }
