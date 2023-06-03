@@ -60,6 +60,7 @@ public class PostService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Transactional
     public ResponseEntity<?> updatePost(UpdatePostFormDto updatePostFormDto) throws IOException {
 
         String realPassword = postRepository.findPasswordById(updatePostFormDto.getId());
@@ -67,12 +68,17 @@ public class PostService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 틀립니다.");
         }
 
-        ArrayList<String> S3UploadResult = uploadImageToS3Bucket(updatePostFormDto.getFile());
+        if (updatePostFormDto.getFile() == null) {
+            postRepository.updatePostWithoutNewImage(updatePostFormDto.getId(), updatePostFormDto.getCaption());
+        }
+        else {
+            ArrayList<String> S3UploadResult = uploadImageToS3Bucket(updatePostFormDto.getFile());
 
-        String imagePath = S3UploadResult.get(0);
-        String downloadUrl = S3UploadResult.get(1);
+            String imagePath = S3UploadResult.get(0);
+            String downloadUrl = S3UploadResult.get(1);
 
-        postRepository.updatePost(updatePostFormDto.getId(), updatePostFormDto.getCaption(), imagePath, downloadUrl);
+            postRepository.updatePostWithNewImage(updatePostFormDto.getId(), updatePostFormDto.getCaption(), imagePath, downloadUrl);
+        }
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -90,7 +96,6 @@ public class PostService {
 
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
-
 
     private ArrayList<String> uploadImageToS3Bucket(MultipartFile file) throws IOException {
 
