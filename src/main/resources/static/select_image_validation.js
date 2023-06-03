@@ -1,6 +1,6 @@
-function fileSelectionWithValidation(event) {
+function fileSelectionWithValidation(event, id) {
     var fileInput = event.target;
-    var fileInfoElement = document.getElementById('file-info');
+    var fileInfoElement = document.getElementById(id);
 
     if (fileInput.files.length > 0) {
         var selectedFile = fileInput.files[0];
@@ -17,7 +17,7 @@ function fileSelectionWithValidation(event) {
         }
 
         if (fileSizeInBytes > maxSizeInBytes) {
-            fileInfoElement.textContent = '선택한 파일의 크기가 허용 범위를 초과합니다.';
+            fileInfoElement.textContent = '선택한 파일의 크기가 허용 범위를 초과합니다. (10MB 이하)';
             fileInput.value = '';
             return;
         }
