@@ -29,6 +29,7 @@ const drawList = (DATA) => {
         DIV_IMG_FRAME.setAttribute("data-mdb-ripple-color", "light");
 
         const IMG_ELE = document.createElement('img');
+        IMG_ELE.setAttribute("id", "img" + post_id);
         IMG_ELE.setAttribute("src", source);
 
         var img = new Image();
@@ -55,6 +56,7 @@ const drawList = (DATA) => {
         DIV_ELE_3.setAttribute("style", "background-color: rgba(251, 251, 251, 0.2)");
 
         const P_ELE = document.createElement('p');
+        P_ELE.setAttribute("id", "caption" + post_id);
         P_ELE.innerText = caption;
 
         const A_ELE_2 = document.createElement('a');
@@ -68,6 +70,23 @@ const drawList = (DATA) => {
         A_ELE_2.addEventListener("click", function () { downloadImg(download_key) });
 
         A_ELE_2.innerText = "Download";
+
+        const A_ELE_4 = document.createElement('a');
+        const update_btn_id = "btn-update" + post_id;
+        A_ELE_4.setAttribute("class", "btn");
+        A_ELE_4.setAttribute("class", "btn-info");
+        A_ELE_4.setAttribute("class", "btn-rounded");
+        A_ELE_4.setAttribute("id", update_btn_id);
+        A_ELE_4.setAttribute("role", "button");
+
+        A_ELE_4.innerText = "Update";
+
+        A_ELE_4.onclick = function() {
+            document.getElementById("modal-update").style.display="flex";
+            document.getElementById("update-post-id").value = post_id;
+            document.getElementById("update-preview-image").innerHTML = '<img src="' + document.getElementById("img"+post_id).src + '" class="img-fluid">';
+            document.getElementById("update-caption-input").value = document.getElementById("caption"+post_id).innerText;
+        };
 
         const A_ELE_3 = document.createElement('a');
         const delete_btn_id = "btn-delete" + post_id;
@@ -147,10 +166,10 @@ const drawList = (DATA) => {
 
         const DIV_GREAT_HEIGHT = document.createElement('div');
         if (img_width > img_height) {
-            DIV_CARD.append(DIV_ELE_4, A_ELE_2, A_ELE_3, DIV_MOD_ELE_0);
+            DIV_CARD.append(DIV_ELE_4, A_ELE_2, A_ELE_4, A_ELE_3, DIV_MOD_ELE_0);
         } else {
             IMG_ELE.setAttribute("style", "width: 70%");
-            DIV_GREAT_HEIGHT.append(DIV_ELE_4, A_ELE_2, A_ELE_3, DIV_MOD_ELE_0);
+            DIV_GREAT_HEIGHT.append(DIV_ELE_4, A_ELE_2, A_ELE_4, A_ELE_3, DIV_MOD_ELE_0);
             DIV_GREAT_HEIGHT.setAttribute("style", "display: flex; flex-direction: column; overflow: hidden");
             DIV_IMG_FRAME.append(DIV_GREAT_HEIGHT);
             DIV_IMG_FRAME.setAttribute("style", "display: flex");
@@ -159,7 +178,7 @@ const drawList = (DATA) => {
 
         document.querySelector("#scroll-row").append(DIV_CARD);
     });
-
+    lastId++;
     isFetching = false; // callback이 끝났으니 isFetching 리셋
 };
 
@@ -212,10 +231,14 @@ const deletePost = (post_id, password) => {
             "password" : password
         })
     })
-        .then(() => {
-            const post_to_delete = document.getElementById("card" + post_id);
-            const parent_ele = document.querySelector("#scroll-row");
-            parent_ele.removeChild(post_to_delete);
+        .then((res) => {
+            if (res.ok) {
+                const post_to_delete = document.getElementById("card" + post_id);
+                const parent_ele = document.querySelector("#scroll-row");
+                parent_ele.removeChild(post_to_delete);
+            } else {
+                alert("오류가 발생하였습니다.");
+            }
     })
         .catch((e) => {
             showToast("toast-delete-fail" + post_id, "비밀번호가 틀렸습니다.");
@@ -241,7 +264,6 @@ function queryGetList() {
     isQuerying = true;
 
     getList();
-
 
     setTimeout(() => {
         isQuerying = false; // 딜레이가 종료되면 쿼리 실행 상태를 false로 설정합니다.
