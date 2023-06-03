@@ -34,15 +34,6 @@ const drawList = (DATA) => {
 
         var img = new Image();
         img.src = source;
-        var img_width = img.width;
-        var img_height = img.height;
-
-        if (img_width > img_height) {
-            IMG_ELE.setAttribute("class", "w-100");
-        } else {
-            IMG_ELE.setAttribute("style", "object-fit: cover; display: flex")
-
-        }
 
         const A_CARD_BACKGROUND = document.createElement('a');
         A_CARD_BACKGROUND.setAttribute("href", "몰라유...");
@@ -165,21 +156,27 @@ const drawList = (DATA) => {
         DIV_CARD.append(DIV_IMG_FRAME);
 
         const DIV_GREAT_HEIGHT = document.createElement('div');
-        if (img_width > img_height) {
-            DIV_CARD.append(DIV_ELE_4, A_ELE_2, A_ELE_4, A_ELE_3, DIV_MOD_ELE_0);
-        } else {
-            IMG_ELE.setAttribute("style", "width: 70%");
-            DIV_GREAT_HEIGHT.append(DIV_ELE_4, A_ELE_2, A_ELE_4, A_ELE_3, DIV_MOD_ELE_0);
-            DIV_GREAT_HEIGHT.setAttribute("style", "display: flex; flex-direction: column; overflow: hidden");
-            DIV_IMG_FRAME.append(DIV_GREAT_HEIGHT);
-            DIV_IMG_FRAME.setAttribute("style", "display: flex");
-        }
+        img.addEventListener('load', () => {
+            var img_width = img.width;
+            var img_height = img.height;
 
+            if (img_width >= img_height) {
+                IMG_ELE.setAttribute("class", "w-100");
+                DIV_CARD.append(DIV_ELE_4, A_ELE_2, A_ELE_4, A_ELE_3, DIV_MOD_ELE_0);
+            } else {
+                IMG_ELE.setAttribute("style", "object-fit: cover; display: flex");
+                IMG_ELE.setAttribute("style", "width: 70%");
+                DIV_GREAT_HEIGHT.append(DIV_ELE_4, A_ELE_2, A_ELE_4, A_ELE_3, DIV_MOD_ELE_0);
+                DIV_GREAT_HEIGHT.setAttribute("style", "display: flex; flex-direction: column; overflow: hidden");
+                DIV_IMG_FRAME.append(DIV_GREAT_HEIGHT);
+                DIV_IMG_FRAME.setAttribute("style", "display: flex");
+            }
+        });
 
         document.querySelector("#scroll-row").append(DIV_CARD);
+        isFetching = false; // callback이 끝났으니 isFetching 리셋
     });
     lastId++;
-    isFetching = false; // callback이 끝났으니 isFetching 리셋
 };
 
 const getList = () => {
