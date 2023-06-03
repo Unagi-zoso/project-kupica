@@ -39,6 +39,9 @@ public class PostService {
     private String s3Bucket;
     @Value("${cloud.aws.s3.bucket-url}")
     private String bucketUrl;
+
+    @Value("${cloud.aws.cloudfront-domain}")
+    private String cloudfrontDomain;
     private final AmazonS3Client amazonS3Client;
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
@@ -112,12 +115,13 @@ public class PostService {
                         .withCannedAcl(CannedAccessControlList.PublicRead)
         );
 
-        String imagePath = amazonS3Client.getUrl(s3Bucket, imageFileName).toString();
-        String downloadUrl = imagePath.substring(bucketUrl.length());
+        String s3ImagePath = amazonS3Client.getUrl(s3Bucket, imageFileName).toString();
+        String cloudfrontImagePath = cloudfrontDomain + imageFileName;
+        String downloadUrl = s3ImagePath.substring(bucketUrl.length());
 
         ArrayList<String> S3UploadResult = new ArrayList<>();
 
-        S3UploadResult.add(imagePath);
+        S3UploadResult.add(cloudfrontImagePath);
         S3UploadResult.add(downloadUrl);
 
         return S3UploadResult;
