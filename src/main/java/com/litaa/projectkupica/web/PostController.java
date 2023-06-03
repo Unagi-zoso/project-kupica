@@ -33,7 +33,7 @@ public class PostController {
     }
 
     @PostMapping("/post/update")
-    public ResponseEntity<?> updatePost(@RequestBody UpdatePostFormDto updatePostFormDto) throws IOException {
+    public ResponseEntity<?> updatePost(UpdatePostFormDto updatePostFormDto) throws IOException {
 
         return postService.updatePost(updatePostFormDto);
     }
