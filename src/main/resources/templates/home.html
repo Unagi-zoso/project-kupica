@@ -45,11 +45,11 @@
     </button>
 </div>
 
-<div id="modal" class="modal modal-overlay upload-modal">
+<div id="modal-upload" class="modal modal-overlay upload-modal">
     <div class="modal-window">
         <div class="content">
-            <form id="upload-form" onsubmit="submitForm(event)" class="upload-form" >
-                <input id="image-chooser" type="file" name="file" accept=".jpg, .png, .gif, .jpeg" onchange="fileSelectionWithValidation(event)" required/>
+            <form id="upload-form" onsubmit="submitUploadForm(event)" class="upload-form" >
+                <input id="image-chooser" type="file" name="file" accept=".jpg, .png, .gif, .jpeg" onchange="fileSelectionWithValidation(event, 'file-info')" required/>
                 <div id="preview-image"></div>
                 <div id="file-info"></div>
                 <div class="upload-form-detail">
@@ -63,6 +63,26 @@
     </div>
 </div>
 
+<div id="modal-update" class="modal modal-overlay upload-modal">
+    <div class="modal-window">
+        <div class="content">
+            <form id="update-form" onsubmit="submitUpdateForm(event)" class="upload-form" >
+                <div id="update-post-id" hidden></div>
+                <input id="update-image-chooser" type="file" name="file" accept=".jpg, .png, .gif, .jpeg" onchange="fileSelectionWithValidation(event, 'update-file-info')"/>
+                <div id="update-preview-image"></div>
+                <div id="update-file-info"></div>
+                <div class="upload-form-detail">
+                    <input id="update-caption-input" type="text" placeholder="사진설명" name="caption" />
+                    <input id="update-password-input" type="password" placeholder="비밀번호 확인!" name="password" required/>
+                </div>
+                <button id="modal-update-btn" class="cta blue">업로드</button>
+                <button type="button" id="update-modal-close-btn">창 닫기</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <div class="container" id="scroll-container">
     <section class="text-center mb-4" id="posts">
         <div class="row" id="scroll-row">
@@ -74,6 +94,7 @@
 <script type="text/javascript" src="/inf_scroll.js"></script>
 <script type="text/javascript" src="/select_image_validation.js"></script>
 <script type="text/javascript" src="/submitform_with_validation.js"></script>
+<script type="text/javascript" src="/submit_update_form.js"></script>
 <script type="text/javascript" src="/upload_modal.js"></script>
 <script type="text/javascript" src="/podium_img.js"></script>
 <script type="text/javascript" src="/preview_image.js"></script>
