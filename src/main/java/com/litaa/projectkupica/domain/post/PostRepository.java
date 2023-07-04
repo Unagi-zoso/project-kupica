@@ -27,8 +27,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     void updatePostErasedTrue(int id);
 
     @Modifying(clearAutomatically = true)
-    @Query(value = "UPDATE post SET post.caption =  ?2, post.source = ?3, post.download_key = ?4 WHERE post.post_id = ?1", nativeQuery = true)
-    void updatePostWithNewImage(int id, String caption, String source, String downloadKey);
+    @Query(value = "UPDATE post SET post.caption =  ?2, post.source = ?3, post.cached_image_url = ?4, post.download_key = ?5 WHERE post.post_id = ?1", nativeQuery = true)
+    void updatePostWithNewImage(int id, String caption, String source, String cachedImageUrl, String downloadKey);
 
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE post SET post.caption =  ?2 WHERE post.post_id = ?1", nativeQuery = true)
