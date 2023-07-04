@@ -43,6 +43,7 @@ class EntityListenerTest {
         post1 = Post.builder()
                 .password("1234")
                 .source("/asdf.jpg")
+                .cachedImageUrl("cf/asdf.jpg")
                 .caption("좋은 사진")
                 .downloadKey("s3://temp")
                 .build();
