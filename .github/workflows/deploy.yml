@@ -19,8 +19,6 @@ jobs:
           distribution: zulu
       - name: Pemission
         run: chmod +x ./gradlew
-      - name: Allow user to write logs
-        run: chmod o+w /var/log
       - name: Build with Gradle
         run: ./gradlew clean build
 
