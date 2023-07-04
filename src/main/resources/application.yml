@@ -14,22 +14,3 @@ spring:
                  # ex application-dev.yml -> dev
   jackson:
     property-naming-strategy: SNAKE_CASE
-
-cloud:
-  aws:
-    s3:
-      bucket: kupica-img
-      bucket-url: 
-    credentials:
-<<<<<<< Updated upstream
-      access-key: 
-      secret-key: 
-=======
-      access-key:
-      secret-key:
->>>>>>> Stashed changes
-    region:
-      static: ap-northeast-2
-      auto: false
-    stack:
-      auto: false
