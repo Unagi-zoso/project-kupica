@@ -1,8 +1,7 @@
-function submitForm(event) {
+function submitUploadForm(event) {
     event.preventDefault(); // 폼 제출 기본 동작 막기
 
     var fileInput = document.getElementById('image-chooser');
-    console.log(fileInput)
     var selectedFile = fileInput.files[0];
     var allowedExtensions = ['.jpg', '.png', '.gif', '.jpeg'];
 
@@ -43,7 +42,7 @@ function submitForm(event) {
 }
 
 function resetModalUploadForm() {
-    document.getElementById('modal').style.display = "none";
+    document.getElementById('modal-upload').style.display = "none";
     document.getElementById('preview-image').innerHTML = "";
     document.getElementById('file-info').innerHTML = "";
     document.getElementById('upload-form').reset();
