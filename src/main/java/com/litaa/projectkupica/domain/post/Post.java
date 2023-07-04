@@ -32,6 +32,9 @@ public class Post implements Auditable {
     @Column(length = 300, nullable = false)
     private String source;
 
+    @Column(length = 300, nullable = false)
+    private String cachedImageUrl;
+
     @Column(columnDefinition = "TEXT", nullable = true)
     private String caption;
 
