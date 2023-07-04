@@ -10,7 +10,7 @@ server:
 
 spring:
   profiles:
-    active: local  # default application 파일의 이름
+    active: dev  # default application 파일의 이름
                  # ex application-dev.yml -> dev
   jackson:
     property-naming-strategy: SNAKE_CASE
