@@ -22,7 +22,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         setLocalMode(http);
-        return http.build();//.authorizeRequests().antMatchers("/").permitAll().and().build();
+        return http.build();
     }
 
     @Bean
@@ -38,7 +38,7 @@ public class SecurityConfig {
     private void setLocalMode(HttpSecurity http) throws Exception {
         http.antMatcher("/**")
                 .authorizeRequests()
-                .antMatchers("/", "/**", "/me", "/h2-console/**", "/login/**", "/js/**", "/css/**", "/image/**", "/fonts/**", "/favicon.ico", "/post/upload/**").permitAll()
+                .antMatchers("/", "/**", "/me", "/h2-console/**", "/login/**", "/js/**", "/css/**", "/image/**", "/fonts/**", "/favicon.ico", "/post/upload/**", "/post/update/**").permitAll()
                 .and().headers().frameOptions().sameOrigin()
                 .and().csrf().disable()
         ;
