@@ -36,4 +36,9 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+// plain jar 파일 생성 억제
+jar {
+	enabled = false
+}
+
 
