@@ -6,8 +6,12 @@ package com.litaa.projectkupica.web.dto;
  */
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import org.springframework.web.bind.annotation.RequestParam;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
@@ -15,9 +19,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Builder
 public class PageDto {
 
+    @NotNull
+    @Min(value = 0)
     @JsonProperty("lastPageId")
-    Integer lastPageId;
+    private Integer lastPageId;
 
+    @NotNull
+    @Min(value = 1)
     @JsonProperty("defaultPageSize")
-    Integer defaultPageSize;
+    private Integer defaultPageSize;
 }
