@@ -42,8 +42,23 @@ spring:
     console:
       enabled: true
 
-file:
-  path: C:/project-kupica
+cloud:
+  aws:
+    s3:
+      bucket: kupica-bucket
+      bucket-url: s3://kupica-bucket
+    credentials:
+      access-key: qwer1234
+      secret-key: qwer1234
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+    cloudfront-domain: cloudfront://kupica/
+
+
+
 
 
 
