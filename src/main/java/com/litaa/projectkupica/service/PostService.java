@@ -8,6 +8,8 @@ import com.litaa.projectkupica.domain.post.PostRepository;
 import com.litaa.projectkupica.web.dto.PostDto;
 import com.litaa.projectkupica.web.dto.UpdatePostFormDto;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -46,15 +48,20 @@ public class PostService {
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private final Logger LOGGER = LoggerFactory.getLogger(PostService.class);
+
     @Transactional
     public ResponseEntity<?> uploadPost(PostDto postDto) throws IOException {
 
-        ArrayList<String> S3UploadResult = uploadImageToS3Bucket(postDto.getFile());
+        if (postDto.getFile().isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        String imagePath = S3UploadResult.get(0);
-        String downloadUrl = S3UploadResult.get(1);
+        ArrayList<String> s3UploadResult = uploadImageToS3Bucket(postDto.getFile());
 
-        Post post = postDto.toEntity(imagePath, downloadUrl);
+        String imagePath = s3UploadResult.get(0);
+        String cachedImageUrl = s3UploadResult.get(1);
+        String downloadUrl = s3UploadResult.get(2);
+
+        Post post = postDto.toEntity(imagePath, cachedImageUrl, downloadUrl);
         post.setPassword(passwordEncoder.encode(post.getPassword()));
         post.setEraseFlag(0);
 
@@ -78,9 +85,10 @@ public class PostService {
             ArrayList<String> S3UploadResult = uploadImageToS3Bucket(updatePostFormDto.getFile());
 
             String imagePath = S3UploadResult.get(0);
-            String downloadUrl = S3UploadResult.get(1);
+            String cachedImageUrl = S3UploadResult.get(1);
+            String downloadUrl = S3UploadResult.get(2);
 
-            postRepository.updatePostWithNewImage(updatePostFormDto.getId(), updatePostFormDto.getCaption(), imagePath, downloadUrl);
+            postRepository.updatePostWithNewImage(updatePostFormDto.getId(), updatePostFormDto.getCaption(), imagePath, cachedImageUrl, downloadUrl);
         }
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -102,8 +110,10 @@ public class PostService {
 
     private ArrayList<String> uploadImageToS3Bucket(MultipartFile file) throws IOException {
 
-        UUID uuid = UUID.randomUUID(); // uuid
-        String imageFileName = uuid+"_"+file.getOriginalFilename(); // 1.jpg
+        LOGGER.info("[PostService] upload image to s3 bucket.");
+
+        UUID uuid = UUID.randomUUID();
+        String imageFileName = uuid+"_"+file.getOriginalFilename();
         long imageSize = file.getSize();
 
         ObjectMetadata objectMetaData = new ObjectMetadata();
@@ -119,8 +129,12 @@ public class PostService {
         String cloudfrontImagePath = cloudfrontDomain + imageFileName;
         String downloadUrl = s3ImagePath.substring(bucketUrl.length());
 
+        LOGGER.info("[PostService] upload image to s3 bucket. image filename : {}, image size : {}, s3 image path : {}, cloudfront image path : {}, download url : {}",
+                imageFileName, imageSize, s3ImagePath, cloudfrontImagePath, downloadUrl);
+
         ArrayList<String> S3UploadResult = new ArrayList<>();
 
+        S3UploadResult.add(s3ImagePath);
         S3UploadResult.add(cloudfrontImagePath);
         S3UploadResult.add(downloadUrl);
 
