@@ -10,30 +10,23 @@ const drawList = (DATA) => {
 
     DATA.forEach((item, index) => {
 
-        const { post_id, source, download_key, caption } = item;
+        const { post_id, source, cached_image_url, download_key, caption } = item;
 
         const DIV_CARD = document.createElement('div');
-        DIV_CARD.setAttribute("class", "col-md-6");
-        DIV_CARD.setAttribute("class", "mb-4");
-        DIV_CARD.setAttribute("class", "card");
+        DIV_CARD.setAttribute("class", "col-md-6 mb-4 card");
         DIV_CARD.setAttribute("style", "width: 38rem");
         DIV_CARD.setAttribute("id", "card" + post_id);
 
         const DIV_IMG_FRAME = document.createElement('div');
-        DIV_IMG_FRAME.setAttribute("class", "bg-image");
-        DIV_IMG_FRAME.setAttribute("class", "hover-overlay");
-        DIV_IMG_FRAME.setAttribute("class", "ripple");
-        DIV_IMG_FRAME.setAttribute("class", "shadow-1-strong");
-        DIV_IMG_FRAME.setAttribute("class", "rounded");
-        DIV_IMG_FRAME.setAttribute("class", "mb-4");
+        DIV_IMG_FRAME.setAttribute("class", "bg-image hover-overlay ripple shadow-1-strong rounded mb-4");
         DIV_IMG_FRAME.setAttribute("data-mdb-ripple-color", "light");
 
         const IMG_ELE = document.createElement('img');
         IMG_ELE.setAttribute("id", "img" + post_id);
-        IMG_ELE.setAttribute("src", source);
+        IMG_ELE.setAttribute("src", cached_image_url);
 
         var img = new Image();
-        img.src = source;
+        img.src = cached_image_url;
 
         const A_CARD_BACKGROUND = document.createElement('a');
         A_CARD_BACKGROUND.setAttribute("href", "몰라유...");
@@ -50,44 +43,38 @@ const drawList = (DATA) => {
         P_ELE.setAttribute("id", "caption" + post_id);
         P_ELE.innerText = caption;
 
-        const A_ELE_2 = document.createElement('a');
+        const DIV_ELE_GROUPING_BUTTONS = document.createElement('div');
+        DIV_ELE_GROUPING_BUTTONS.setAttribute("class", "d-inline-block col-12");
+
+        const BUTTON_ELE_1 = document.createElement('button');
         const btn_id = "btn-download" + post_id;
-        A_ELE_2.setAttribute("class", "btn");
-        A_ELE_2.setAttribute("class", "btn-info");
-        A_ELE_2.setAttribute("class", "btn-rounded");
-        A_ELE_2.setAttribute("id", btn_id);
-        A_ELE_2.setAttribute("role", "button");
+        BUTTON_ELE_1.setAttribute("class", "btn btn-primary btn-rounded");
+        BUTTON_ELE_1.setAttribute("id", btn_id);
+        BUTTON_ELE_1.setAttribute("style", "width: 100px");
+        BUTTON_ELE_1.innerText = "Download";
 
-        A_ELE_2.addEventListener("click", function () { downloadImg(download_key) });
+        BUTTON_ELE_1.addEventListener("click", function () { downloadImg(download_key) });
 
-        A_ELE_2.innerText = "Download";
-
-        const A_ELE_4 = document.createElement('a');
+        const BUTTON_ELE_2 = document.createElement('button');
         const update_btn_id = "btn-update" + post_id;
-        A_ELE_4.setAttribute("class", "btn");
-        A_ELE_4.setAttribute("class", "btn-info");
-        A_ELE_4.setAttribute("class", "btn-rounded");
-        A_ELE_4.setAttribute("id", update_btn_id);
-        A_ELE_4.setAttribute("role", "button");
+        BUTTON_ELE_2.setAttribute("class", "btn btn-success btn-rounded");
+        BUTTON_ELE_2.setAttribute("id", update_btn_id);
+        BUTTON_ELE_2.setAttribute("style", "width: 100px");
+        BUTTON_ELE_2.innerText = "Update";
 
-        A_ELE_4.innerText = "Update";
-
-        A_ELE_4.onclick = function() {
+        BUTTON_ELE_2.onclick = function() {
             document.getElementById("modal-update").style.display="flex";
             document.getElementById("update-post-id").value = post_id;
             document.getElementById("update-preview-image").innerHTML = '<img src="' + document.getElementById("img"+post_id).src + '" class="img-fluid">';
             document.getElementById("update-caption-input").value = document.getElementById("caption"+post_id).innerText;
         };
 
-        const A_ELE_3 = document.createElement('a');
+        const BUTTON_ELE_3 = document.createElement('button');
         const delete_btn_id = "btn-delete" + post_id;
-        A_ELE_3.setAttribute("class", "btn");
-        A_ELE_3.setAttribute("class", "btn-info");
-        A_ELE_3.setAttribute("class", "btn-rounded");
-        A_ELE_3.setAttribute("id", delete_btn_id);
-        A_ELE_3.setAttribute("role", "button");
-
-        A_ELE_3.innerText = "Delete";
+        BUTTON_ELE_3.setAttribute("class", "btn btn-danger btn-rounded");
+        BUTTON_ELE_3.setAttribute("id", delete_btn_id);
+        BUTTON_ELE_3.setAttribute("style", "width: 100px");
+        BUTTON_ELE_3.innerText = "Delete";
 
         const DIV_MOD_ELE_0 = document.createElement('div')
         DIV_MOD_ELE_0.setAttribute("class", "modal-delete");
@@ -111,6 +98,7 @@ const drawList = (DATA) => {
         INPUT_PASSWORD.setAttribute("type", "password");
         INPUT_PASSWORD.setAttribute("placeholder", "password");
         INPUT_PASSWORD.setAttribute("name", "password");
+        INPUT_PASSWORD.setAttribute("style", "width: 100px");
 
         const BTN_DELETE = document.createElement('button');
         BTN_DELETE.setAttribute("id", "btn-delete" + post_id);
@@ -119,7 +107,7 @@ const drawList = (DATA) => {
 
         BTN_DELETE.addEventListener("click", function () { deletePost(post_id, document.getElementById("password" + post_id).value); });
 
-        const BTN_CLOSE_DELETE_MODAL = document.createElement('a');
+        const BTN_CLOSE_DELETE_MODAL = document.createElement('button');
         BTN_CLOSE_DELETE_MODAL.setAttribute("id", "modal_close_btn");
         BTN_CLOSE_DELETE_MODAL.innerText = "창 닫기";
 
@@ -127,7 +115,7 @@ const drawList = (DATA) => {
         DIV_TOAST_DELETE_FAIL.setAttribute("id", "toast-delete-fail" + post_id);
         DIV_TOAST_DELETE_FAIL.setAttribute("class", "toast")
 
-        A_ELE_3.addEventListener("click", function () {
+        BUTTON_ELE_3.addEventListener("click", function () {
             const evTarget = document.getElementById(delete_modal_id);
             if(evTarget.classList.contains("modal-overlay")) {
                 document.getElementById("modal-delete" + post_id).style.display = "block"
@@ -156,20 +144,22 @@ const drawList = (DATA) => {
         DIV_CARD.append(DIV_IMG_FRAME);
 
         const DIV_GREAT_HEIGHT = document.createElement('div');
+        DIV_ELE_GROUPING_BUTTONS.append(BUTTON_ELE_1, BUTTON_ELE_2, BUTTON_ELE_3);
         img.addEventListener('load', () => {
             var img_width = img.width;
             var img_height = img.height;
 
             if (img_width >= img_height) {
                 IMG_ELE.setAttribute("class", "w-100");
-                DIV_CARD.append(DIV_ELE_4, A_ELE_2, A_ELE_4, A_ELE_3, DIV_MOD_ELE_0);
+                DIV_CARD.append(DIV_ELE_4, DIV_ELE_GROUPING_BUTTONS, DIV_MOD_ELE_0);
+                DIV_ELE_GROUPING_BUTTONS.setAttribute("style", "padding-top: 10%");
             } else {
-                IMG_ELE.setAttribute("style", "object-fit: cover; display: flex");
-                IMG_ELE.setAttribute("style", "width: 70%");
-                DIV_GREAT_HEIGHT.append(DIV_ELE_4, A_ELE_2, A_ELE_4, A_ELE_3, DIV_MOD_ELE_0);
-                DIV_GREAT_HEIGHT.setAttribute("style", "display: flex; flex-direction: column; overflow: hidden");
+                IMG_ELE.setAttribute("style", "object-fit: cover; display: flex; width: 70%");
+                DIV_GREAT_HEIGHT.append(DIV_ELE_4, DIV_ELE_GROUPING_BUTTONS, DIV_MOD_ELE_0);
+                DIV_GREAT_HEIGHT.setAttribute("style", "display: flex; flex-direction: column; overflow: hidden; padding-top: 20%");
                 DIV_IMG_FRAME.append(DIV_GREAT_HEIGHT);
                 DIV_IMG_FRAME.setAttribute("style", "display: flex");
+                DIV_ELE_GROUPING_BUTTONS.setAttribute("style", "padding-top: 80%");
             }
         });
 
