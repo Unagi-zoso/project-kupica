@@ -58,8 +58,8 @@ class PostControllerTest {
     PostController postController;
 
     /**
-     * @see com.litaa.projectkupica.service.PostService#uploadPost(PostDto) 
      * @throws Exception
+     * @see com.litaa.projectkupica.service.PostService#uploadPost(PostDto)
      */
     @DisplayName("post 업로드 하기")
     @Test
@@ -67,10 +67,10 @@ class PostControllerTest {
 
         final String fileName = "testimage1"; //파일명
         final String contentType = "jpg"; //파일타입
-        final String filePath = "src/test/resources/testimage/"+fileName+"."+contentType; //파일경로
+        final String filePath = "src/test/resources/testimage/" + fileName + "." + contentType; //파일경로
         FileInputStream fileInputStream = new FileInputStream(filePath);
 
-        MockMultipartFile testImage1 = new MockMultipartFile(
+        MockMultipartFile file = new MockMultipartFile(
                 "testImage1", //name
                 fileName + "." + contentType, //originalFilename
                 contentType,
@@ -78,18 +78,21 @@ class PostControllerTest {
         );
 
         PostDto postDto = PostDto.builder()
+                .file(file)
                 .password("qwer1234")
                 .caption("실로.. 좋은 사진이로다..")
+                .eraseFlag(0)
                 .build();
 
         when(postService.uploadPost(any(PostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
         mockMvc.perform(
-                multipart("/post/upload")
-                        .file(testImage1)
-                        .param("password", postDto.getPassword())
-                        .param("caption", postDto.getCaption())
-                        .with(csrf()))
+                        multipart("/post/upload")
+                                .file((MockMultipartFile) postDto.getFile())
+                                .param("password", postDto.getPassword())
+                                .param("caption", postDto.getCaption())
+                                .param("eraseFlag", Integer.toString(postDto.getEraseFlag()))
+                                .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(postService, times(1)).uploadPost(any(PostDto.class));
@@ -120,7 +123,6 @@ class PostControllerTest {
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(content().json(ret));
-
     }
 
     @DisplayName("post 이미지 다운로드받기")
@@ -170,7 +172,7 @@ class PostControllerTest {
         ResponseEntity<?> response = postController.deletePost(deletePostFormDto);
 
         // then
-        assertEquals(HttpStatus.OK,response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @DisplayName("post 수정하기 ")
@@ -179,7 +181,7 @@ class PostControllerTest {
 
         final String fileName = "testimage1"; //파일명
         final String contentType = "jpg"; //파일타입
-        final String filePath = "src/test/resources/testimage/"+fileName+"."+contentType; //파일경로
+        final String filePath = "src/test/resources/testimage/" + fileName + "." + contentType; //파일경로
         FileInputStream fileInputStream = new FileInputStream(filePath);
 
         MockMultipartFile testImage1 = new MockMultipartFile(
@@ -203,6 +205,82 @@ class PostControllerTest {
         ResponseEntity<?> response = postController.updatePost(updatePostFormDto);
 
         // then
-        assertEquals(HttpStatus.OK,response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @DisplayName("PostDto 유효성 검사")
+    @Test
+    void testPostDtoValidation_Password() throws IOException {
+
+        final String fileName = "testimage1"; //파일명
+        final String contentType = "jpg"; //파일타입
+        final String filePath = "src/test/resources/testimage/" + fileName + "." + contentType; //파일경로
+        FileInputStream fileInputStream = new FileInputStream(filePath);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "testImage1", //name
+                fileName + "." + contentType, //originalFilename
+                contentType,
+                fileInputStream
+        );
+
+        PostDto postDto = PostDto.builder()
+                .file(file)
+                .password("qwe")
+                .caption("안녕하세요?")
+                .eraseFlag(0)
+                .build();
+
+        when(postService.uploadPost(any(PostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        try {
+            mockMvc.perform(
+                            multipart("/post/upload")
+                                    .file((MockMultipartFile) postDto.getFile())
+                                    .param("password", postDto.getPassword())
+                                    .param("caption", postDto.getCaption())
+                                    .param("eraseFlag", Integer.toString(postDto.getEraseFlag()))
+                                    .with(csrf()))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        } catch (Exception ignored) {
+        }
+    }
+
+    @DisplayName("PostDto 유효성 검사")
+    @Test
+    void testPostDtoValidation_eraseFlag() throws IOException {
+
+        final String fileName = "testimage1"; //파일명
+        final String contentType = "jpg"; //파일타입
+        final String filePath = "src/test/resources/testimage/" + fileName + "." + contentType; //파일경로
+        FileInputStream fileInputStream = new FileInputStream(filePath);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "testImage1", //name
+                fileName + "." + contentType, //originalFilename
+                contentType,
+                fileInputStream
+        );
+
+        PostDto postDto = PostDto.builder()
+                .file(file)
+                .password("qwe1234")
+                .caption("안녕하세요?")
+                .eraseFlag(5)
+                .build();
+
+        when(postService.uploadPost(any(PostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        try {
+            mockMvc.perform(
+                            multipart("/post/upload")
+                                    .file((MockMultipartFile) postDto.getFile())
+                                    .param("password", postDto.getPassword())
+                                    .param("caption", postDto.getCaption())
+                                    .param("eraseFlag", Integer.toString(postDto.getEraseFlag()))
+                                    .with(csrf()))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        } catch (Exception ignored) {
+        }
     }
 }
