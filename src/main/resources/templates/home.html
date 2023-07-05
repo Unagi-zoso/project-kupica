@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="/home.css">
+    <!-- Bootstrap CSS -->
+
+    <title>Kupica</title>
+</head>
+<body>
+<nav class="nav-bar">
+
+    <div class="navbar-brand" href="#" style="padding-left: 47%">
+        <img src="logo/logo.png" id="logo-img" alt="" width="30" height="30">
+        <div>
+            <ul id="logo-name" style="list-style: none; font-size: 8px;">
+                <li>Korea univ</li>
+                <li>Picture</li>
+                <li>Archive</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="modal-btn">
+        <button class="btn-outline-secondary" id="modal_open_btn" type="button">
+            <span aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M6 12h10v1h-10v-1zm7.816-3h-7.816v1h9.047c-.45-.283-.863-.618-1.231-1zm5.184 1.975v2.569c0 4.106-6 2.456-6 2.456s1.518 6-2.638 6h-7.362v-20h9.5c.312-.749.763-1.424 1.316-2h-12.816v24h10.189c3.163 0 9.811-7.223 9.811-9.614v-3.886c-.623.26-1.297.421-2 .475zm-13-3.975h6.5c-.134-.32-.237-.656-.319-1h-6.181v1zm17-2.5c0 2.485-2.017 4.5-4.5 4.5s-4.5-2.015-4.5-4.5 2.017-4.5 4.5-4.5 4.5 2.015 4.5 4.5zm-2-.5h-2v-2h-1v2h-2v1h2v2h1v-2h2v-1z"/></svg>
+            </span>
+        </button>
+    </div>
+</nav>
+
+<div id="carouselExampleControls" class="carousel carousel-dark slide container" data-bs-ride="carousel">
+    <div class="carousel-inner carousel-main">
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<div id="modal-upload" class="modal modal-overlay upload-modal">
+    <div class="modal-window">
+        <div class="content">
+            <form id="upload-form" onsubmit="submitUploadForm(event)" class="upload-form" >
+                <input id="image-chooser" type="file" name="file" accept=".jpg, .png, .gif, .jpeg" onchange="fileSelectionWithValidation(event, 'file-info')" required/>
+                <div id="preview-image"></div>
+                <div id="file-info"></div>
+                <div class="upload-form-detail">
+                    <input id="caption-input" type="text" placeholder="사진설명" name="caption" />
+                    <input id="password-input" type="password" placeholder="비밀번호 반드시!" name="password" required/>
+                </div>
+                <button id="modal_upload_btn" class="cta blue">업로드</button>
+                <button type="button" id="modal_close_btn">창 닫기</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="modal-update" class="modal modal-overlay upload-modal">
+    <div class="modal-window">
+        <div class="content">
+            <form id="update-form" onsubmit="submitUpdateForm(event)" class="upload-form" >
+                <div id="update-post-id" hidden></div>
+                <input id="update-image-chooser" type="file" name="file" accept=".jpg, .png, .gif, .jpeg" onchange="fileSelectionWithValidation(event, 'update-file-info')"/>
+                <div id="update-preview-image"></div>
+                <div id="update-file-info"></div>
+                <div class="upload-form-detail">
+                    <input id="update-caption-input" type="text" placeholder="사진설명" name="caption" />
+                    <input id="update-password-input" type="password" placeholder="비밀번호 확인!" name="password" required/>
+                </div>
+                <button id="modal-update-btn" class="cta blue">업로드</button>
+                <button type="button" id="update-modal-close-btn">창 닫기</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="container" id="scroll-container">
+    <section class="text-center mb-4" id="posts">
+        <div class="row" id="scroll-row">
+        </div>
+    </section>
+</div>
+
+<!-- Optional JavaScript; choose one of the two! -->
+<script type="text/javascript" src="/inf_scroll.js"></script>
+<script type="text/javascript" src="/select_image_validation.js"></script>
+<script type="text/javascript" src="/submitform_with_validation.js"></script>
+<script type="text/javascript" src="/submit_update_form.js"></script>
+<script type="text/javascript" src="/upload_modal.js"></script>
+<script type="text/javascript" src="/podium_img.js"></script>
+<script type="text/javascript" src="/preview_image.js"></script>
+
+<!-- Option 1: Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+<!-- Option 2: Separate Popper and Bootstrap JS -->
+<!--
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+-->
+</body>
+</html>

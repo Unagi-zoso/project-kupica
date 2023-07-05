@@ -1,0 +1,26 @@
+package com.litaa.projectkupica.domain.util;
+
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import java.time.LocalDateTime;
+
+/**
+ * @author : Unagi_zoso
+ * @date : 2022-10-03
+ */
+public class EntityListener {
+    @PrePersist
+    public void setCreateTime(Object o) {
+        if (o instanceof Auditable) {
+            ((Auditable) o).setCreatedAt(LocalDateTime.now());
+            ((Auditable) o).setUpdatedAt(LocalDateTime.now());
+        }
+    }
+
+    @PreUpdate
+    public void setUpdateTime(Object o) {
+        if (o instanceof Auditable) {
+            ((Auditable) o).setUpdatedAt(LocalDateTime.now());
+        }
+    }
+}

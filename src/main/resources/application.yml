@@ -1,0 +1,16 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: utf-8
+      enabled: true
+
+# application.yml
+
+spring:
+  profiles:
+    active: dev  # default application 파일의 이름
+                 # ex application-dev.yml -> dev
+  jackson:
+    property-naming-strategy: SNAKE_CASE

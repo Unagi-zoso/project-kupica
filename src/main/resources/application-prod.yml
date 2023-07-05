@@ -1,0 +1,50 @@
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://${rds.hostname}:${rds.port}/${rds.db.name}
+    username: ${rds.username}
+    password: ${rds.password}
+  mvc:
+    view:
+      suffix: .html
+
+  jpa:
+    open-in-view: true
+    hibernate:
+      naming:
+        physical-strategy: com.litaa.projectkupica.config.SnakeCasePhysicalNameStrategy
+      ddl-auto: none
+    show-sql: true
+    defer-datasource-initialization: false
+    generate-ddl: false
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 30MB
+
+server:
+  tomcat:
+    max-http-form-post-size: 20MB
+
+cloud:
+  aws:
+    s3:
+      bucket: ${s3.bucket.name}
+      bucket-url: ${s3.bucket.url}
+    credentials:
+      access-key: ${aws.access.key}
+      secret-key: ${aws.secret.key}
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+    cloudfront-domain: ${cloudfront.domain}
+
+logging:
+  level:
+    '[org.springframework.boot.web]': INFO'
