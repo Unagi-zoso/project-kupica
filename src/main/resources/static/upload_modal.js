@@ -14,12 +14,16 @@ document.getElementById("modal-upload").addEventListener("click", e => {
 })
 
 document.getElementById("update-modal-close-btn").addEventListener("click", e => {
-    resetModalUpdateForm();
+    resetModalForm("update");
 });
 
-function resetModalUpdateForm() {
-    document.getElementById("modal-update").style.display="none";
-    document.getElementById('update-preview-image').innerHTML = "";
-    document.getElementById('update-file-info').innerHTML = "";
-    document.getElementById('update-form').reset();
+document.getElementById("delete-modal-close-btn").addEventListener("click", e => {
+    resetModalForm("delete");
+});
+
+function resetModalForm(form) {
+    document.getElementById("modal-"+form).style.display="none";
+    document.getElementById(form+'-preview-image').innerHTML = "";
+    document.getElementById(form+'-file-info').innerHTML = "";
+    document.getElementById(form+'-form').reset();
 }
