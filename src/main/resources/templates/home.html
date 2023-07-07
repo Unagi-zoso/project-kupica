@@ -82,6 +82,22 @@
     </div>
 </div>
 
+<div id="modal-delete" class="modal modal-overlay upload-modal">
+    <div class="modal-window">
+        <div class="content">
+            <form id="delete-form" onsubmit="submitDeleteForm(event)" class="upload-form" >
+                <div id="delete-post-id" hidden></div>
+                <input id="delete-password-input" type="password" placeholder="비밀번호 확인!" name="password" required/>
+                <button id="modal-delete-btn" class="cta blue">삭제</button>
+                <button type="button" id="delete-modal-close-btn">취소</button>
+
+                <div id="delete-preview-image"></div>
+                <a id="delete-caption-input"></a>
+                <div id="delete-file-info"></div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <div class="container" id="scroll-container">
     <section class="text-center mb-4" id="posts">
@@ -96,6 +112,7 @@
 <script type="text/javascript" src="/submitform_with_validation.js"></script>
 <script type="text/javascript" src="/submit_update_form.js"></script>
 <script type="text/javascript" src="/upload_modal.js"></script>
+<script type="text/javascript" src="/submit_delete_form.js"></script>
 <script type="text/javascript" src="/podium_img.js"></script>
 <script type="text/javascript" src="/preview_image.js"></script>
 
