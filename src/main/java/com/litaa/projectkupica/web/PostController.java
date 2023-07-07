@@ -57,7 +57,7 @@ public class PostController {
     }
 
     @PostMapping("/post/delete")
-    public ResponseEntity<?> deletePost(@Valid @RequestBody DeletePostFormDto deletePostFormDto) {
+    public ResponseEntity<?> deletePost(@Valid DeletePostFormDto deletePostFormDto) {
 
         LOGGER.info("[PostController] delete post. post id : {}", deletePostFormDto.getId());
 

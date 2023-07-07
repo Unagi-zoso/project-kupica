@@ -39,7 +39,7 @@ function submitUpdateForm(event) {
         .then(function(response) {
 
             if (response.ok) {
-                resetModalUpdateForm();
+                resetModalForm("update");
                 document.getElementById("caption"+inputId).innerText = inputCaption;
                 if (isExistFile) {
                     var reader = new FileReader();
