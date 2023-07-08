@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>post form</title>
+</head>
+
+<style>
+    .post_form {
+        width : 500px;
+        margin : 0 auto;
+    }
+
+    .post_form > input, textarea {
+        width : 100%;
+        box-sizing : border-box;
+        margin-top : 10px
+    }
+</style>
+
+<body>
+    <div class ="post_form">
+        <form action="/post/upload" method="post" enctype="multipart/form-data">
+        <input  type="file" name="file"  onchange="imageChoose(this)" />
+        <div class="upload-img">
+            <img src="/logo/logo.png" alt="" id="imageUploadPreview" />
+        </div>
+        <textarea name = "content">설명</textarea>
+        <button type = "submit">게시</button>
+    </div>
+</body>
+</html>

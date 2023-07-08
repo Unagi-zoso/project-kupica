@@ -1,0 +1,65 @@
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  datasource:
+      url: jdbc:h2:mem:testdb;MODE=MariaDB;
+      username: sa
+      password:
+      driverClassName: org.h2.Driver
+  mvc:
+    view:
+      suffix: .html
+
+  jpa:
+    open-in-view: true
+    hibernate:
+      naming:
+        physical-strategy: com.litaa.projectkupica.config.SnakeCasePhysicalNameStrategy
+      ddl-auto: create-drop
+    show-sql: true
+    defer-datasource-initialization: false
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    properties:
+      hibernate.dialect: org.hibernate.dialect.H2Dialect
+    generate-ddl: false
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 2MB
+
+  security:
+    user:
+      name: test
+      password: 1234
+
+  sql:
+    init:
+      mode: embedded
+      schema-locations: classpath:schema-h2.sql
+      # data-locations: classpath:data-h2.sql
+  h2:
+    console:
+      enabled: true
+
+cloud:
+  aws:
+    s3:
+      bucket: kupica-bucket
+      bucket-url: s3://kupica-bucket
+    credentials:
+      access-key: qwer1234
+      secret-key: qwer1234
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+    cloudfront-domain: cloudfront://kupica/
+
+
+
+
+
+
+
