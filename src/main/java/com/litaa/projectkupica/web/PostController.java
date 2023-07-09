@@ -46,8 +46,13 @@ public class PostController {
     @PostMapping("/post/update")
     public ResponseEntity<?> updatePost(@Valid UpdatePostFormDto updatePostFormDto) throws IOException {
 
+        String updatedFileName = "* No Changed";;
+        if (null != updatePostFormDto.getFile())  {
+            updatedFileName = updatePostFormDto.getFile().getOriginalFilename();
+        }
+
         long startTime = System.currentTimeMillis();
-        LOGGER.info("[PostController] update post. post id : {}, post filename : {}, post caption : {}", updatePostFormDto.getId(), updatePostFormDto.getFile().getOriginalFilename(), updatePostFormDto.getCaption());
+        LOGGER.info("[PostController] update post. post id : {}, post filename : {}, post caption : {}", updatePostFormDto.getId(), updatedFileName, updatePostFormDto.getCaption());
 
         ResponseEntity<?> response = postService.updatePost(updatePostFormDto);
 
