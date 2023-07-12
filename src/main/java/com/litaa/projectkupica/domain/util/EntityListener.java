@@ -12,15 +12,15 @@ public class EntityListener {
     @PrePersist
     public void setCreateTime(Object o) {
         if (o instanceof Auditable) {
-            ((Auditable) o).setCreatedAt(LocalDateTime.now());
-            ((Auditable) o).setUpdatedAt(LocalDateTime.now());
+            ((Auditable) o).setCreatedDateTime(LocalDateTime.now());
+            ((Auditable) o).setUpdatedDateTime(LocalDateTime.now());
         }
     }
 
     @PreUpdate
     public void setUpdateTime(Object o) {
         if (o instanceof Auditable) {
-            ((Auditable) o).setUpdatedAt(LocalDateTime.now());
+            ((Auditable) o).setUpdatedDateTime(LocalDateTime.now());
         }
     }
 }
