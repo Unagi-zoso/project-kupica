@@ -13,17 +13,17 @@ import java.util.List;
  * @date : 2022-10-06
  */
 public interface PostRepository extends JpaRepository<Post, Integer> {
-    @Query(value = "SELECT * FROM post WHERE post.erase_flag = 0", nativeQuery = true)
+    @Query(value = "SELECT * FROM post WHERE post.erased_flag = 0", nativeQuery = true)
     Page<Post> findAllUnErased(Pageable pageable);
 
-    @Query(value = "SELECT * FROM post WHERE post.erase_flag = 0 ORDER BY created_at DESC LIMIT 0, 5", nativeQuery = true)
+    @Query(value = "SELECT * FROM post WHERE post.erased_flag = 0 ORDER BY created_date_time DESC LIMIT 0, 5", nativeQuery = true)
     List<Post> findPostsLatest5();
 
     @Query(value = "SELECT post.password FROM post WHERE post.post_id = ?1", nativeQuery = true)
     String findPasswordById(int id);
 
     @Modifying(clearAutomatically = true)
-    @Query(value = "UPDATE post SET post.erase_flag = 1 WHERE post.post_id = ?1", nativeQuery = true)
+    @Query(value = "UPDATE post SET post.erased_flag = 1 WHERE post.post_id = ?1", nativeQuery = true)
     void updatePostErasedTrue(int id);
 
     @Modifying(clearAutomatically = true)
