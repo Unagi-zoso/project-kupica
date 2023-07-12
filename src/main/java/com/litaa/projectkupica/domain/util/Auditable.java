@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
  */
 public interface Auditable {
 
-    LocalDateTime getCreatedAt();
-    LocalDateTime getUpdatedAt();
+    LocalDateTime getCreatedDateTime();
+    LocalDateTime getUpdatedDateTime();
 
-    void setCreatedAt(LocalDateTime createdAt);
-    void setUpdatedAt(LocalDateTime updatedAt);
+    void setCreatedDateTime(LocalDateTime createdDateTime);
+    void setUpdatedDateTime(LocalDateTime updatedDateTime);
 }
