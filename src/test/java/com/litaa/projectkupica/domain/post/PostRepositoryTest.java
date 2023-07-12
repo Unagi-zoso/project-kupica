@@ -38,9 +38,9 @@ class PostRepositoryTest {
     @BeforeEach
     void beforeEach() {
 
-        post1 = Post.builder().password("1234").source("/asdf1.jpg").cachedImageUrl("cf/asdf1.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").eraseFlag(0).build();
-        post2 = Post.builder().password("1234").source("/asdf2.jpg").cachedImageUrl("cf/asdf2.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").eraseFlag(1).build();
-        post3 = Post.builder().password("1234").source("/asdf3.jpg").cachedImageUrl("cf/asdf3.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").eraseFlag(0).build();
+        post1 = Post.builder().password("1234").source("/asdf1.jpg").cachedImageUrl("cf/asdf1.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").erasedFlag(0).build();
+        post2 = Post.builder().password("1234").source("/asdf2.jpg").cachedImageUrl("cf/asdf2.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").erasedFlag(1).build();
+        post3 = Post.builder().password("1234").source("/asdf3.jpg").cachedImageUrl("cf/asdf3.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").erasedFlag(0).build();
 
         postRep.save(post1);
         postRep.save(post2);
@@ -97,8 +97,8 @@ class PostRepositoryTest {
     @Test
     void testFindPostsLatest5() {
 
-        Post post4 = Post.builder().password("1234").source("/asdf4.jpg").cachedImageUrl("cf/asdf4.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").eraseFlag(0).build();
-        Post post5 = Post.builder().password("1234").source("/asdf5.jpg").cachedImageUrl("cf/asdf5.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").eraseFlag(1).build();
+        Post post4 = Post.builder().password("1234").source("/asdf4.jpg").cachedImageUrl("cf/asdf4.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").erasedFlag(0).build();
+        Post post5 = Post.builder().password("1234").source("/asdf5.jpg").cachedImageUrl("cf/asdf5.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp").erasedFlag(1).build();
         postRep.save(post4);
         postRep.save(post5);
 
@@ -113,14 +113,14 @@ class PostRepositoryTest {
     @Test
     void When_EraseFlagWasNotUpdated_Then_False() {
         Post post4 = Post.builder().password("1234").source("/asdf1.jpg").cachedImageUrl("cf/asdf1.jpg").caption("좀 많이 어렵네..").downloadKey("s3://temp")
-                .eraseFlag(0)
+                .erasedFlag(0)
                 .build();
         postRep.save(post4);
 
         int postId = post4.getPostId();
         postRep.updatePostErasedTrue(postId);
 
-        int postEraseFlag = postRep.findById(postId).orElseThrow(RuntimeException::new).getEraseFlag();
+        int postEraseFlag = postRep.findById(postId).orElseThrow(RuntimeException::new).getErasedFlag();
         assertEquals(postEraseFlag, 1);
     }
 
