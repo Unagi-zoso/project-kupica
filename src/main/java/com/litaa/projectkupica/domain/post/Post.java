@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
  * @author : Unagi_zoso
  * @date : 2022-10-04
  */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,14 +39,15 @@ public class Post implements Auditable {
     @Column(columnDefinition = "TEXT", nullable = true)
     private String caption;
 
-    @Column(nullable = true)
-    private Integer eraseFlag;
+    @Column(nullable = false)
+    private Integer erasedFlag;
 
     @Column(length = 300, nullable = false)
     private String downloadKey;
 
-    LocalDateTime createdAt;
+    @Column(nullable = false)
+    LocalDateTime createdDateTime;
 
-    LocalDateTime updatedAt;
-
+    @Column(nullable = false)
+    LocalDateTime updatedDateTime;
 }
