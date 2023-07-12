@@ -24,7 +24,7 @@ public class PostDto {
 
     @Max(value = 1)
     @Min(value = 0)
-    private Integer eraseFlag;
+    private Integer erasedFlag;
 
     public Post toEntity(String postImageUrl, String cachedImageUrl, String imageDownloadUrl) {
         return Post.builder()
@@ -33,7 +33,7 @@ public class PostDto {
                 .source(postImageUrl)
                 .cachedImageUrl(cachedImageUrl)
                 .downloadKey(imageDownloadUrl)
-                .eraseFlag(eraseFlag)
+                .erasedFlag(erasedFlag)
                 .build();
     }
 }
