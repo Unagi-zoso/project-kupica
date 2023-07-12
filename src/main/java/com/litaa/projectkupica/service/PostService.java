@@ -63,7 +63,7 @@ public class PostService {
 
         Post post = postDto.toEntity(imagePath, cachedImageUrl, downloadUrl);
         post.setPassword(passwordEncoder.encode(post.getPassword()));
-        post.setEraseFlag(0);
+        post.setErasedFlag(0);
 
         postRepository.save(post);
 
