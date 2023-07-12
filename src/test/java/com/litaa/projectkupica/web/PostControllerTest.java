@@ -81,7 +81,7 @@ class PostControllerTest {
                 .file(file)
                 .password("qwer1234")
                 .caption("실로.. 좋은 사진이로다..")
-                .eraseFlag(0)
+                .erasedFlag(0)
                 .build();
 
         when(postService.uploadPost(any(PostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
@@ -91,7 +91,7 @@ class PostControllerTest {
                                 .file((MockMultipartFile) postDto.getFile())
                                 .param("password", postDto.getPassword())
                                 .param("caption", postDto.getCaption())
-                                .param("eraseFlag", Integer.toString(postDto.getEraseFlag()))
+                                .param("erasedFlag", Integer.toString(postDto.getErasedFlag()))
                                 .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -103,9 +103,9 @@ class PostControllerTest {
     void testFindPostsByPageRequest() throws Exception {
 
         List<Post> posts = Stream.of(
-                Post.builder().password("qwer1234").source("/asdf.jpg").caption("1이얏").downloadKey("s3://temp").eraseFlag(0).build(),
-                Post.builder().password("qwer1234").source("/asdf.jpg").caption("2이얏").downloadKey("s3://temp").eraseFlag(0).build(),
-                Post.builder().password("qwer1234").source("/asdf.jpg").caption("3이얏").downloadKey("s3://temp").eraseFlag(0).build()).collect(Collectors.toList());
+                Post.builder().password("qwer1234").source("/asdf.jpg").caption("1이얏").downloadKey("s3://temp").erasedFlag(0).build(),
+                Post.builder().password("qwer1234").source("/asdf.jpg").caption("2이얏").downloadKey("s3://temp").erasedFlag(0).build(),
+                Post.builder().password("qwer1234").source("/asdf.jpg").caption("3이얏").downloadKey("s3://temp").erasedFlag(0).build()).collect(Collectors.toList());
 
         PageDto pageDto = PageDto.builder()
                 .lastPageId(0)
@@ -228,7 +228,7 @@ class PostControllerTest {
                 .file(file)
                 .password("qwe")
                 .caption("안녕하세요?")
-                .eraseFlag(0)
+                .erasedFlag(0)
                 .build();
 
         when(postService.uploadPost(any(PostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
@@ -239,7 +239,7 @@ class PostControllerTest {
                                     .file((MockMultipartFile) postDto.getFile())
                                     .param("password", postDto.getPassword())
                                     .param("caption", postDto.getCaption())
-                                    .param("eraseFlag", Integer.toString(postDto.getEraseFlag()))
+                                    .param("erasedFlag", Integer.toString(postDto.getErasedFlag()))
                                     .with(csrf()))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest());
         } catch (Exception ignored) {
@@ -248,7 +248,7 @@ class PostControllerTest {
 
     @DisplayName("PostDto 유효성 검사")
     @Test
-    void testPostDtoValidation_eraseFlag() throws IOException {
+    void testPostDtoValidation_erasedFlag() throws IOException {
 
         final String fileName = "testimage1"; //파일명
         final String contentType = "jpg"; //파일타입
@@ -266,7 +266,7 @@ class PostControllerTest {
                 .file(file)
                 .password("qwe1234")
                 .caption("안녕하세요?")
-                .eraseFlag(5)
+                .erasedFlag(5)
                 .build();
 
         when(postService.uploadPost(any(PostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.OK));
@@ -277,7 +277,7 @@ class PostControllerTest {
                                     .file((MockMultipartFile) postDto.getFile())
                                     .param("password", postDto.getPassword())
                                     .param("caption", postDto.getCaption())
-                                    .param("eraseFlag", Integer.toString(postDto.getEraseFlag()))
+                                    .param("erasedFlag", Integer.toString(postDto.getErasedFlag()))
                                     .with(csrf()))
                     .andExpect(MockMvcResultMatchers.status().isBadRequest());
         } catch (Exception ignored) {
