@@ -1,11 +1,9 @@
 package com.litaa.projectkupica.domain.post;
 
+import com.litaa.projectkupica.domain.image.Image;
 import com.litaa.projectkupica.domain.util.Auditable;
 import com.litaa.projectkupica.domain.util.EntityListener;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,6 +12,7 @@ import java.time.LocalDateTime;
  * @author : Unagi_zoso
  * @date : 2022-10-04
  */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,23 +28,46 @@ public class Post implements Auditable {
     @Column(length = 160, nullable = false)
     private String password;
 
-    @Column(length = 300, nullable = false)
-    private String source;
-
-    @Column(length = 300, nullable = false)
-    private String cachedImageUrl;
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
+    private Image image;
 
     @Column(columnDefinition = "TEXT", nullable = true)
     private String caption;
 
-    @Column(nullable = true)
-    private Integer eraseFlag;
+    @Column(nullable = false)
+    private Integer erasedFlag;
 
-    @Column(length = 300, nullable = false)
-    private String downloadKey;
+    @Column(nullable = false)
+    LocalDateTime createdDateTime;
 
-    LocalDateTime createdAt;
+    @Column(nullable = false)
+    LocalDateTime updatedDateTime;
 
-    LocalDateTime updatedAt;
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class PostResponse {
 
+        private Integer postId;
+        private String caption;
+        private String source;
+        private String cachedImageUrl;
+        private String downloadKey;
+
+        public PostResponse(Post post) {
+            this.postId = post.getPostId();
+            this.caption = post.getCaption();
+            this.source = post.getImage().getSource();
+            this.cachedImageUrl = post.getImage().getCachedImageUrl();
+            this.downloadKey = post.getImage().getDownloadKey();
+        }
+
+        @Builder
+        public PostResponse(Integer postId, String caption, String source, String cachedImageUrl, String downloadKey) {
+            this.postId = postId;
+            this.caption = caption;
+            this.source = source;
+            this.cachedImageUrl = cachedImageUrl;
+            this.downloadKey = downloadKey;
+        }
+    }
 }

@@ -1,8 +1,7 @@
 let isFetching = false;
 let isQuerying = false;
 const defaultPaginationSize = 6;
-const URL = "paging";
-const DownloadURL = "download";
+const URL_PAGING = "/posts/page";
 let lastId = 0;
 
 const drawList = (DATA) => {
@@ -143,16 +142,8 @@ const drawList = (DATA) => {
 
 const getList = () => {
     isFetching = true; // 아직 callback이 끝나지 않았어요!
-    fetch(URL, {
-        method: "POST",
-        headers: {
-            'Content-type': 'application/json',
-        },
-        body: JSON.stringify({
-            "lastPageId" : lastId,
-            "defaultPageSize" : defaultPaginationSize
-        })
-    })
+
+    fetch(URL_PAGING + "?lastPageId=" + lastId.toString() + "&pageSize=" + defaultPaginationSize.toString())
         .then(response => response.json())
         .then(drawList)
         .catch((e) => {
@@ -160,19 +151,17 @@ const getList = () => {
         });
 };
 
-function downloadImg(source) {
-    console.log(DownloadURL + "?" + "fileUrl=" + source);
-    fetch(DownloadURL + "?" + "fileUrl=" + source, {
-        method: "GET",
+function downloadImg(downloadKey) {
 
-    }).then(response => response.blob())
+    fetch("/images/" + downloadKey + "/download")
+        .then(response => response.blob())
         .then(function (response) {
             let link = document.createElement('a');
             link.style.display = 'none';
             document.body.appendChild(link);
             console.log(response);
             link.href = window.URL.createObjectURL(response);
-            link.download = source;
+            link.download = downloadKey;
             link.click();
         }).catch((e) => {
     });

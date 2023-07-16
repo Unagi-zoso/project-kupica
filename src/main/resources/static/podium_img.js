@@ -1,5 +1,5 @@
 let count_of_img = 0;
-const PODIUM_IMG_URL = "latestimage";
+const PODIUM_IMG_URL = "/images/latest/5";
 
 const draw_podium_List = (DATA) => {
 
@@ -23,9 +23,7 @@ const draw_podium_List = (DATA) => {
 };
 
 const get_podium_List = () => {
-    fetch(PODIUM_IMG_URL, {
-        method: "GET"
-    })
+    fetch(PODIUM_IMG_URL)
         .then(response => response.json())
         .then(draw_podium_List)
         .catch((e) => {
