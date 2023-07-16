@@ -1,11 +1,9 @@
 package com.litaa.projectkupica.web;
 
-import com.litaa.projectkupica.domain.post.Post;
+import com.litaa.projectkupica.domain.post.Post.PostResponse;
 import com.litaa.projectkupica.service.PostService;
-import com.litaa.projectkupica.web.dto.DeletePostFormDto;
-import com.litaa.projectkupica.web.dto.PageDto;
-import com.litaa.projectkupica.web.dto.PostDto;
 import com.litaa.projectkupica.web.dto.UpdatePostFormDto;
+import com.litaa.projectkupica.web.dto.UploadPostFormDto;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.IOException;
 import java.util.List;
 
@@ -27,11 +29,10 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-
     private final Logger LOGGER = LoggerFactory.getLogger(PostController.class);
 
-    @PostMapping("/post/upload")
-    public ResponseEntity<Void> uploadPost(@Valid PostDto postDto) throws IOException {
+    @PostMapping("/posts")
+    public ResponseEntity<Void> uploadPost(@Valid UploadPostFormDto postDto) throws IOException {
 
         long startTime = System.currentTimeMillis();
         LOGGER.info("[PostController] upload post. post caption : {}", postDto.getCaption());
@@ -43,8 +44,9 @@ public class PostController {
         return new ResponseEntity<>(resStatus);
     }
 
-    @PostMapping("/post/update")
-    public ResponseEntity<?> updatePost(@Valid UpdatePostFormDto updatePostFormDto) throws IOException {
+    @PatchMapping("/posts/{postId}")
+    public ResponseEntity<?> updatePost(@PathVariable @NotNull Integer postId,
+                                        @Valid UpdatePostFormDto updatePostFormDto) throws IOException {
 
         String updatedFileName = "* No Changed";;
         if (null != updatePostFormDto.getFile())  {
@@ -52,59 +54,38 @@ public class PostController {
         }
 
         long startTime = System.currentTimeMillis();
-        LOGGER.info("[PostController] update post. post id : {}, post filename : {}, post caption : {}", updatePostFormDto.getId(), updatedFileName, updatePostFormDto.getCaption());
+        LOGGER.info("[PostController] update post. post id : {}, post filename : {}, post caption : {}", postId, updatedFileName, updatePostFormDto.getCaption());
 
-        ResponseEntity<?> response = postService.updatePost(updatePostFormDto);
+        ResponseEntity<?> response = postService.updatePost(postId, updatePostFormDto);
 
         LOGGER.info("[PostController] update post processing time : {}", (System.currentTimeMillis() - startTime));
 
         return response;
     }
 
-    @PostMapping("/post/delete")
-    public ResponseEntity<?> deletePost(@Valid DeletePostFormDto deletePostFormDto) {
+    @DeleteMapping("/posts/{postId}/delete")
+    public ResponseEntity<?> deletePost(@PathVariable(name = "postId") @NotNull Integer postId,
+                                        @NotBlank
+                                        @Pattern(regexp = "^(?!\\s*$).{4,20}$", message = "비밀번호는 4자리 이상 20자 이하이어야 하며, 공백을 제외한 문자로 이루어져야 합니다.")
+                                        String password) {
 
-        LOGGER.info("[PostController] delete post. post id : {}", deletePostFormDto.getId());
+        LOGGER.info("[PostController] delete post. post id : {}", postId);
 
-        return postService.updatePostErasedTrue(deletePostFormDto.getId(), deletePostFormDto.getPassword());
+        return postService.updatePostErasedTrue(postId, password);
     }
 
-    @GetMapping("/download")
-    public ResponseEntity<byte[]> download(@RequestParam(value = "fileUrl") String fileUrl) throws IOException {
+    @GetMapping("/posts/page")
+    public ResponseEntity<?> findPostsByPageRequest(@RequestParam(name = "lastPageId") @NotNull @Min(value = 0)Integer lastPageId,
+                                                    @RequestParam(name = "pageSize") @NotNull @Min(value = 1)Integer pageSize) {
 
         long startTime = System.currentTimeMillis();
-        LOGGER.info("[PostController] download post. downloadImageUrl : {}", fileUrl);
-        ResponseEntity<byte[]> response = postService.download(fileUrl);
+        LOGGER.info("[PostController] find posts By pageRequest. last page id : {}, page size : {}", lastPageId, pageSize);
 
-        LOGGER.info("[PostController] download post processing time : {}", (System.currentTimeMillis() - startTime));
-        return response;
-    }
-
-    @GetMapping("/latestimage")
-    public List<Post> findPostsLatest5() {
-
-        long startTime = System.currentTimeMillis();
-        LOGGER.info("[PostController] find latest 5 posts .");
-
-        List<Post> posts = postService.findPostsLatest5();
-
-        LOGGER.info("[PostController] find latest 5 posts. post size : {}", posts.size());
-        LOGGER.info("[PostController] find latest 5 posts processing time : {}", (System.currentTimeMillis() - startTime));
-
-        return posts;
-    }
-
-    @PostMapping("/paging")
-    public List<Post> findPostsByPageRequest(@Valid @RequestBody PageDto pageDto) {
-
-        long startTime = System.currentTimeMillis();
-        LOGGER.info("[PostController] find posts By pageRequest. last page id : {}, page size : {}", pageDto.getLastPageId(), pageDto.getDefaultPageSize());
-
-        List<Post> posts = postService.findPostsByPageRequest(pageDto.getLastPageId(), pageDto.getDefaultPageSize());
+        List<PostResponse> posts = postService.findPostsByPageRequest(lastPageId, pageSize);
 
         LOGGER.info("[PostController] find posts By pageRequest. post size : {}", posts.size());
         LOGGER.info("[PostController] find posts By pageRequest processing time : {}", (System.currentTimeMillis() - startTime));
 
-        return posts;
+        return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 }
