@@ -6,13 +6,12 @@ function submitDeleteForm(event) {
 
     var inputId = deletePostId.value;
     var deleteFormData = new FormData();
-    deleteFormData.append('id', inputId);
     deleteFormData.append('password', deletePasswordInput.value);
 
     // Fetch 요청 보내기
 
-    fetch('post/delete', {
-        method: 'POST',
+    fetch('posts/' + inputId + '/delete', {
+        method: 'DELETE',
         body: deleteFormData
     })
         .then(function(response) {
