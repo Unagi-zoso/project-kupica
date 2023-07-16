@@ -42,11 +42,8 @@ class EntityListenerTest {
     void beforeEach() {
         post1 = Post.builder()
                 .password("1234")
-                .source("/asdf.jpg")
-                .cachedImageUrl("cf/asdf.jpg")
                 .caption("좋은 사진")
                 .erasedFlag(0)
-                .downloadKey("s3://temp")
                 .build();
 
         postRep.save(post1);
