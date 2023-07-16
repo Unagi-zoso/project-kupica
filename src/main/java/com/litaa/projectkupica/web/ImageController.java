@@ -37,7 +37,7 @@ public class ImageController {
     }
 
     @GetMapping("/images/latest/5")
-    public List<ImageResponse> findPostsLatest5() {
+    public List<ImageResponse> findLatestImages5() {
 
         long startTime = System.currentTimeMillis();
         LOGGER.info("[ImageController] find latest 5 images .");
