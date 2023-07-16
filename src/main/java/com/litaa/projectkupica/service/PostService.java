@@ -1,32 +1,24 @@
 package com.litaa.projectkupica.service;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.*;
-import com.amazonaws.util.IOUtils;
 import com.litaa.projectkupica.domain.post.Post;
+import com.litaa.projectkupica.domain.post.Post.PostResponse;
 import com.litaa.projectkupica.domain.post.PostRepository;
-import com.litaa.projectkupica.web.dto.PostDto;
 import com.litaa.projectkupica.web.dto.UpdatePostFormDto;
+import com.litaa.projectkupica.web.dto.UploadPostFormDto;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author : Unagi_zoso
@@ -37,154 +29,89 @@ import java.util.UUID;
 @Service
 public class PostService {
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String s3Bucket;
-    @Value("${cloud.aws.s3.bucket-url}")
-    private String bucketUrl;
-
-    @Value("${cloud.aws.cloudfront-domain}")
-    private String cloudfrontDomain;
-    private final AmazonS3Client amazonS3Client;
+    private final ImageService imageService;
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final Logger LOGGER = LoggerFactory.getLogger(PostService.class);
 
     @Transactional
-    public ResponseEntity<?> uploadPost(PostDto postDto) throws IOException {
+    public ResponseEntity<?> uploadPost(UploadPostFormDto uploadPostFormDto) throws IOException {
 
-        if (postDto.getFile().isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (uploadPostFormDto.getFile().isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        ArrayList<String> s3UploadResult = uploadImageToS3Bucket(postDto.getFile());
-
-        String imagePath = s3UploadResult.get(0);
-        String cachedImageUrl = s3UploadResult.get(1);
-        String downloadUrl = s3UploadResult.get(2);
-
-        Post post = postDto.toEntity(imagePath, cachedImageUrl, downloadUrl);
-        post.setPassword(passwordEncoder.encode(post.getPassword()));
-        post.setErasedFlag(0);
+        Post post = Post.builder()
+                .password(passwordEncoder.encode(uploadPostFormDto.getPassword()))
+                .caption(uploadPostFormDto.getCaption())
+                .erasedFlag(0)
+                .build();
 
         postRepository.save(post);
 
+        imageService.uploadImage(post.getPostId(), uploadPostFormDto.getFile());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Transactional
-    public ResponseEntity<?> updatePost(UpdatePostFormDto updatePostFormDto) throws IOException {
+    public ResponseEntity<?> updatePost(int postId, UpdatePostFormDto updatePostFormDto) throws IOException {
 
-        String realPassword = postRepository.findPasswordById(updatePostFormDto.getId());
+        PostResponse existingPost = findPostResponseById(postId);
+        if (existingPost == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 하는 게시글이 없습니다.");
+        }
+
+        String realPassword = postRepository.findPasswordById(postId);
         if (!isPasswordValid(updatePostFormDto.getPassword(), realPassword)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 틀립니다.");
         }
 
-        if (updatePostFormDto.getFile() == null) {
-            postRepository.updatePostWithoutNewImage(updatePostFormDto.getId(), updatePostFormDto.getCaption());
+        if (updatePostFormDto.getFile() != null) {
+
+            imageService.updateImage(postId, updatePostFormDto.getFile());
         }
-        else {
-            ArrayList<String> S3UploadResult = uploadImageToS3Bucket(updatePostFormDto.getFile());
+        String currentCaption = findPostResponseById(postId).getCaption();
+        String newCaption = updatePostFormDto.getCaption();
 
-            String imagePath = S3UploadResult.get(0);
-            String cachedImageUrl = S3UploadResult.get(1);
-            String downloadUrl = S3UploadResult.get(2);
+        if (!currentCaption.equals(newCaption)) postRepository.updatePostCaption(postId, newCaption);
 
-            postRepository.updatePostWithNewImage(updatePostFormDto.getId(), updatePostFormDto.getCaption(), imagePath, cachedImageUrl, downloadUrl);
-        }
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public ResponseEntity<byte[]> download(String storedFileUrl) throws IOException {
-
-        S3Object s3Object = amazonS3Client.getObject(new GetObjectRequest(s3Bucket, storedFileUrl));
-        S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
-        byte[] bytes = IOUtils.toByteArray(objectInputStream);
-
-        String fileName = URLEncoder.encode(storedFileUrl, "UTF-8").replaceAll("\\+", "%20");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(contentType(storedFileUrl));
-        httpHeaders.setContentLength(bytes.length);
-        httpHeaders.setContentDispositionFormData("attachment", fileName);
-
-        return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
-    }
-
-    private ArrayList<String> uploadImageToS3Bucket(MultipartFile file) throws IOException {
-
-        LOGGER.info("[PostService] upload image to s3 bucket.");
-
-        UUID uuid = UUID.randomUUID();
-        String imageFileName = uuid+"_"+file.getOriginalFilename();
-        long imageSize = file.getSize();
-
-        ObjectMetadata objectMetaData = new ObjectMetadata();
-        objectMetaData.setContentType(file.getContentType());
-        objectMetaData.setContentLength(imageSize);
-
-        amazonS3Client.putObject(
-                new PutObjectRequest(s3Bucket, imageFileName, file.getInputStream(), objectMetaData)
-                        .withCannedAcl(CannedAccessControlList.PublicRead)
-        );
-
-        String s3ImagePath = amazonS3Client.getUrl(s3Bucket, imageFileName).toString();
-        String cloudfrontImagePath = cloudfrontDomain + imageFileName;
-        String downloadUrl = s3ImagePath.substring(bucketUrl.length());
-
-        LOGGER.info("[PostService] upload image to s3 bucket. image filename : {}, image size : {}, s3 image path : {}, cloudfront image path : {}, download url : {}",
-                imageFileName, imageSize, s3ImagePath, cloudfrontImagePath, downloadUrl);
-
-        ArrayList<String> S3UploadResult = new ArrayList<>();
-
-        S3UploadResult.add(s3ImagePath);
-        S3UploadResult.add(cloudfrontImagePath);
-        S3UploadResult.add(downloadUrl);
-
-        return S3UploadResult;
-    }
-    private MediaType contentType(String keyName) {
-
-        String[] arr = keyName.split("\\.");
-        String type = arr[arr.length - 1];
-
-        switch (type) {
-            case "txt":
-                return MediaType.TEXT_PLAIN;
-            case "png":
-            case "PNG":
-                return MediaType.IMAGE_PNG;
-            case "jpg":
-            case "JPG":
-                return MediaType.IMAGE_JPEG;
-            default:
-                return MediaType.APPLICATION_OCTET_STREAM;
-        }
-    }
-
-    public List<Post> findPostsByPageRequest(Integer page, Integer size) {
+    public List<PostResponse> findPostsByPageRequest(Integer page, Integer size) {
 
         Sort sort = Sort.by(Sort.Direction.DESC, "post_id");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
-        return postRepository.findAllUnErased(pageRequest).getContent();
-    }
 
-    public List<Post> findPostsLatest5() {
-
-        return postRepository.findPostsLatest5();
+        return postRepository.findAllUnErased(pageRequest).getContent().stream().map(PostResponse::new).collect(Collectors.toList());
     }
 
     @Transactional
-    public ResponseEntity<?> updatePostErasedTrue(Integer id, String password) {
+    public ResponseEntity<?> updatePostErasedTrue(int postId, String password) {
 
-        String realPassword = postRepository.findPasswordById(id);
+        PostResponse existingPost = findPostResponseById(postId);
+        if (existingPost == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 하는 게시글이 없습니다.");
+        }
+
+        String realPassword = postRepository.findPasswordById(postId);
         if (!isPasswordValid(password, realPassword)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 틀립니다.");
         }
 
-        postRepository.updatePostErasedTrue(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        postRepository.updatePostErasedTrue(postId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     public boolean isPasswordValid(String password, String encodedPassword) {
 
         return passwordEncoder.matches(password, encodedPassword);
+    }
+
+    public PostResponse findPostResponseById(Integer postId) {
+
+        Post post = postRepository.findPostById(postId);
+
+        return new PostResponse(post);
+
     }
 }
