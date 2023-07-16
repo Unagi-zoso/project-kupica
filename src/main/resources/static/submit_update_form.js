@@ -32,8 +32,9 @@ function submitUpdateForm(event) {
 
     // Fetch 요청 보내기
 
-    fetch('post/update', {
-        method: 'POST',
+
+    fetch('posts/'+inputId, {
+        method: 'PATCH',
         body: updateFormData
     })
         .then(function(response) {
