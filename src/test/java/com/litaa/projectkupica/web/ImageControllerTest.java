@@ -3,15 +3,13 @@ package com.litaa.projectkupica.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.litaa.projectkupica.domain.image.Image.ImageResponse;
 import com.litaa.projectkupica.service.ImageService;
+import com.litaa.projectkupica.web.dto.ImageFile;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,8 +18,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,22 +48,23 @@ class ImageControllerTest {
     @DisplayName("이미지 다운로드받기")
     @Test
     void testDownload() throws IOException {
-
-        final String pathName = "src/test/resources/testimage/testimage1.jpg";
-        File file = new File(pathName);
+        final String fileName = "testimage1";
+        final String extension = "jpg";
+        final String pathName = "src/test/resources/testimage";
+        File file = new File(pathName + "/" + fileName + "." + extension);
         byte[] mockImageData = Files.readAllBytes(file.toPath());
 
+        ImageFile imageFile = new ImageFile(mockImageData, fileName, MediaType.IMAGE_JPEG, mockImageData.length);
+
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.IMAGE_JPEG);
-        httpHeaders.setContentLength(mockImageData.length);
-        httpHeaders.setContentDispositionFormData("attachment", "testimage1");
+        httpHeaders.setContentType(imageFile.getMediaType());
+        httpHeaders.setContentLength(imageFile.getSize());
+        httpHeaders.setContentDisposition(ContentDisposition.attachment().filename(imageFile.getFileName()).build());
 
-
-        when(imageController.download(pathName)).thenReturn(new ResponseEntity<>(mockImageData, httpHeaders, HttpStatus.OK));
+        when(imageController.download(anyInt())).thenReturn(ResponseEntity.ok().headers(httpHeaders).body(mockImageData));
 
         // when
-        ResponseEntity<byte[]> response = imageController.download(pathName);
-        System.out.println(response);
+        ResponseEntity<byte[]> response = imageController.download(1);
 
         // then
         // response 상태 검증
@@ -71,7 +72,7 @@ class ImageControllerTest {
         assertEquals(MediaType.IMAGE_JPEG, response.getHeaders().getContentType());
 
         // 이미지 데이터 검증
-        byte[] downloadedImageData = response.getBody();
+        byte[] downloadedImageData = Objects.requireNonNull(response.getBody());
         assertNotNull(downloadedImageData);
         assertEquals(mockImageData.length, downloadedImageData.length);
         assertArrayEquals(mockImageData, downloadedImageData);
