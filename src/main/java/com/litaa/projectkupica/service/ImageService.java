@@ -7,14 +7,12 @@ import com.litaa.projectkupica.domain.image.Image;
 import com.litaa.projectkupica.domain.image.Image.ImageResponse;
 import com.litaa.projectkupica.domain.image.ImageRepository;
 import com.litaa.projectkupica.domain.post.PostRepository;
+import com.litaa.projectkupica.web.dto.ImageFile;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,19 +62,16 @@ public class ImageService {
         imageRepository.save(image);
     }
 
-    public ResponseEntity<byte[]> download(String storedFileUrl) throws IOException {
+    public ImageFile download(int imageId) throws IOException {
+        String storedFileUrl = imageRepository.findDownloadKeyByImageId(imageId);
 
         S3Object s3Object = amazonS3Client.getObject(new GetObjectRequest(s3Bucket, storedFileUrl));
         S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
         byte[] bytes = IOUtils.toByteArray(objectInputStream);
 
         String fileName = URLEncoder.encode(storedFileUrl, "UTF-8").replaceAll("\\+", "%20");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(contentType(storedFileUrl));
-        httpHeaders.setContentLength(bytes.length);
-        httpHeaders.setContentDispositionFormData("attachment", fileName);
 
-        return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
+        return new ImageFile(bytes, fileName, contentType(storedFileUrl), bytes.length);
     }
 
     public List<ImageResponse> findLatestImages5() {
@@ -110,16 +105,16 @@ public class ImageService {
 
         String s3ImagePath = amazonS3Client.getUrl(s3Bucket, imageFileName).toString();
         String cloudfrontImagePath = cloudfrontDomain + imageFileName;
-        String downloadUrl = s3ImagePath.substring(bucketUrl.length());
+        String downloadKey = imageFileName;
 
         LOGGER.info("[PostService] upload image to s3 bucket. image filename : {}, image size : {}, s3 image path : {}, cloudfront image path : {}, download url : {}",
-                imageFileName, imageSize, s3ImagePath, cloudfrontImagePath, downloadUrl);
+                imageFileName, imageSize, s3ImagePath, cloudfrontImagePath, downloadKey);
 
         ArrayList<String> S3UploadResult = new ArrayList<>();
 
         S3UploadResult.add(s3ImagePath);
         S3UploadResult.add(cloudfrontImagePath);
-        S3UploadResult.add(downloadUrl);
+        S3UploadResult.add(downloadKey);
 
         return S3UploadResult;
     }
@@ -136,6 +131,8 @@ public class ImageService {
                 return MediaType.IMAGE_PNG;
             case "jpg":
             case "JPG":
+            case "jpeg":
+            case "JPEG":
                 return MediaType.IMAGE_JPEG;
             default:
                 return MediaType.APPLICATION_OCTET_STREAM;
@@ -151,7 +148,5 @@ public class ImageService {
         String downloadUrl = s3UploadResult.get(2);
 
         imageRepository.updateImage(id, imagePath, cachedImageUrl, downloadUrl);
-
-        new ResponseEntity<>(HttpStatus.OK);
     }
 }
