@@ -1,8 +1,7 @@
 let isFetching = false;
 let isQuerying = false;
 const defaultPaginationSize = 6;
-const URL = "paging";
-const DownloadURL = "download";
+const URL_PAGING = "/posts/page";
 let lastId = 0;
 
 const drawList = (DATA) => {
@@ -49,7 +48,7 @@ const drawList = (DATA) => {
         BUTTON_ELE_1.setAttribute("class", "btn btn-outline-primary btn-rounded");
         BUTTON_ELE_1.setAttribute("id", btn_id);
 
-        BUTTON_ELE_1.addEventListener("click", function () { downloadImg(download_key) });
+        BUTTON_ELE_1.addEventListener("click", function () { downloadImg(post_id) });
 
         const BUTTON_ELE_2 = document.createElement('button');
         const update_btn_id = "btn-update" + post_id;
@@ -143,16 +142,8 @@ const drawList = (DATA) => {
 
 const getList = () => {
     isFetching = true; // 아직 callback이 끝나지 않았어요!
-    fetch(URL, {
-        method: "POST",
-        headers: {
-            'Content-type': 'application/json',
-        },
-        body: JSON.stringify({
-            "lastPageId" : lastId,
-            "defaultPageSize" : defaultPaginationSize
-        })
-    })
+
+    fetch(URL_PAGING + "?lastPageId=" + lastId.toString() + "&pageSize=" + defaultPaginationSize.toString())
         .then(response => response.json())
         .then(drawList)
         .catch((e) => {
@@ -160,19 +151,27 @@ const getList = () => {
         });
 };
 
-function downloadImg(source) {
-    console.log(DownloadURL + "?" + "fileUrl=" + source);
-    fetch(DownloadURL + "?" + "fileUrl=" + source, {
-        method: "GET",
+function downloadImg(post_id) {
 
-    }).then(response => response.blob())
+    let filename = ' ';
+    fetch("/images/" + post_id + "/download")
+        .then(response => {
+            const contentDispositionHeader = response.headers.get('Content-Disposition');
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            const matches = filenameRegex.exec(contentDispositionHeader);
+
+            if (matches != null && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
+            }
+
+            return response.blob();
+        })
         .then(function (response) {
             let link = document.createElement('a');
             link.style.display = 'none';
             document.body.appendChild(link);
-            console.log(response);
             link.href = window.URL.createObjectURL(response);
-            link.download = source;
+            link.download = filename;
             link.click();
         }).catch((e) => {
     });

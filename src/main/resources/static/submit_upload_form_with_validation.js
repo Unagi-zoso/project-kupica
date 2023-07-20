@@ -23,7 +23,7 @@ function submitUploadForm(event) {
         formData.append('password', passwordInput.value);
 
         // Fetch 요청 보내기
-        fetch('post/upload', {
+        fetch('posts', {
             method: 'POST',
             body: formData
         })

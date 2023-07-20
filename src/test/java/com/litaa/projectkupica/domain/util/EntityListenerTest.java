@@ -42,10 +42,8 @@ class EntityListenerTest {
     void beforeEach() {
         post1 = Post.builder()
                 .password("1234")
-                .source("/asdf.jpg")
-                .cachedImageUrl("cf/asdf.jpg")
                 .caption("좋은 사진")
-                .downloadKey("s3://temp")
+                .erasedFlag(0)
                 .build();
 
         postRep.save(post1);
@@ -61,14 +59,14 @@ class EntityListenerTest {
     @Test
     void When_CreatedAtIsNull_Then_False(){
 
-        assertNotNull(postRep.findById(1).orElseThrow(RuntimeException::new).getCreatedAt());
+        assertNotNull(postRep.findById(1).orElseThrow(RuntimeException::new).getCreatedDateTime());
     }
 
     @DisplayName("2. PreUpdate 데이터 입력 시 정상작동")
     @Test
     void When_UpdatedAtIsNull_Then_False(){
 
-        assertNotNull(postRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedAt());
+        assertNotNull(postRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedDateTime());
     }
 
     @DirtiesContext(methodMode = BEFORE_METHOD)
@@ -76,13 +74,13 @@ class EntityListenerTest {
     @Test
     void When_UpdateTimeWasNotUpdated_Then_False(){
 
-        LocalDateTime prevUpdate = postRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedAt();
+        LocalDateTime prevUpdate = postRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedDateTime();
 
         post1.setCaption("이 사진이 더 멋져!");
         postRep.save(post1);
         em.flush();
 
-        LocalDateTime curUpdate = postRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedAt();
+        LocalDateTime curUpdate = postRep.findById(1).orElseThrow(RuntimeException::new).getUpdatedDateTime();
 
         assertNotEquals(prevUpdate, curUpdate);
 
