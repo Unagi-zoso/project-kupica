@@ -43,7 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @ActiveProfiles("local")
 @WithMockUser(username = "테스트 관리자", roles = {"SUPER"})
-@ExtendWith(RestDocumentationExtension.class)
 @AutoConfigureRestDocs
 @WebMvcTest(PostController.class)
 class PostControllerTest {
