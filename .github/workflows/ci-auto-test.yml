@@ -20,7 +20,7 @@ jobs:
       - name: Permission
         run: chmod +wx ./gradlew
       - name: Build with Gradle
-        run: ./gradlew clean build
+        run: ./gradlew clean build --stacktrace
 
       # UTC가 기준이기 때문에 한국시간으로 맞추려면 +9시간 해야 한다
       - name: Get current time
