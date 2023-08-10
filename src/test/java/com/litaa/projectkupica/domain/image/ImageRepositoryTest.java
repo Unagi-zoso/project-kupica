@@ -39,20 +39,12 @@ class ImageRepositoryTest {
 
     @BeforeEach
     void defaultGivenImages5() {
-        givenPosts = new ArrayList<>(5);
-        givenImages = new ArrayList<>(5);
-
-        for (int i = 0; i < 5; i++) {
-            givenPosts.add(Post.builder().password("1234").caption("test caption").erasedFlag(0).build());
-        }
+        createPosts5();
         givenPosts = (ArrayList<Post>) postRepository.saveAll(givenPosts);
 
         entityManager.flush();
-
-        for (int i = 0; i < 5; i++) {
-            givenImages.add(Image.builder().source("/asdf1.jpg").cachedImageUrl("cf/asdf1.jpg").downloadKey("s3://temp").post(givenPosts.get(i)).build());
-        }
-        imageRepository.saveAll(givenImages);
+        createImages5();
+        givenImages = (ArrayList<Image>) imageRepository.saveAll(givenImages);
     }
 
     @AfterEach
@@ -90,7 +82,7 @@ class ImageRepositoryTest {
     @Test
     void When_NumOfImagesEquals6_Expect_False() {
         Post givenPost = Post.builder().password("1234").caption("test caption").erasedFlag(0).build();
-        Image givenImage = Image.builder().source("/asdf1.jpg").cachedImageUrl("cf/asdf1.jpg").downloadKey("s3://temp").post(givenPost).build();
+        Image givenImage = Image.builder().source("/test1.jpg").cachedImageUrl("cf/test1.jpg").downloadKey("s3://temp").post(givenPost).build();
         imageRepository.save(givenImage);
 
         List<Image> images = imageRepository.findLatestImages5();
@@ -119,5 +111,20 @@ class ImageRepositoryTest {
         assertNotEquals(curSource, prevSource);
         assertNotEquals(curCachedUrl, prevCachedUrl);
         assertNotEquals(curDownloadKey, prevDownloadKey);
+    }
+
+    private void createImages5() {
+        givenImages = new ArrayList<>(5);
+        for (int i = 0; i < 5; i++) {
+            givenImages.add(Image.builder().source("/test1.jpg").cachedImageUrl("cf/test1.jpg").downloadKey("s3://temp").post(givenPosts.get(i)).build());
+        }
+    }
+
+    private void createPosts5() {
+        givenPosts = new ArrayList<>(5);
+
+        for (int i = 0; i < 5; i++) {
+            givenPosts.add(Post.builder().password("1234").caption("test caption").erasedFlag(0).build());
+        }
     }
 }
