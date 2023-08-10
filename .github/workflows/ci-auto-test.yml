@@ -18,7 +18,7 @@ jobs:
           java-version: 11
           distribution: zulu
       - name: Permission
-        run: chmod +x ./gradlew
+        run: chmod +wx ./gradlew
       - name: Build with Gradle
         run: ./gradlew clean build
 
