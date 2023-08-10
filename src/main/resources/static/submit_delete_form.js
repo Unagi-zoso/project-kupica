@@ -5,14 +5,14 @@ function submitDeleteForm(event) {
     var deletePasswordInput = document.getElementById("delete-password-input");
 
     var inputId = deletePostId.value;
-    var deleteFormData = new FormData();
-    deleteFormData.append('password', deletePasswordInput.value);
 
     // Fetch 요청 보내기
 
     fetch('posts/' + inputId + '/delete', {
         method: 'DELETE',
-        body: deleteFormData
+        headers: {
+            'Authorization': deletePasswordInput.value
+        }
     })
         .then(function(response) {
             if (response.ok) {
@@ -21,11 +21,14 @@ function submitDeleteForm(event) {
                 const parent_ele = document.querySelector("#scroll-row");
                 parent_ele.removeChild(post_to_delete);
             } else {
-                alert('비밀번호를 확인해주세요!');
                 resetModalForm("delete");
+                response.json().then(errorData => {
+                    alert(errorData.message)
+                })
             }
-        }) .catch(reason => {
-        console.error(reason);
-    })
+        })
+        .catch(error => {
+            alert(error.value)
+        })
 }
 

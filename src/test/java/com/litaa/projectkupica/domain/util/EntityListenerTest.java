@@ -55,14 +55,14 @@ class EntityListenerTest {
         q.executeUpdate();
     }
 
-    @DisplayName("1. PrePersist 데이터 입력 시 정상작동")
+    @DisplayName("PrePersist 데이터 입력 시 정상작동")
     @Test
     void When_CreatedAtIsNull_Then_False(){
 
         assertNotNull(postRep.findById(1).orElseThrow(RuntimeException::new).getCreatedDateTime());
     }
 
-    @DisplayName("2. PreUpdate 데이터 입력 시 정상작동")
+    @DisplayName("PreUpdate 데이터 입력 시 정상작동")
     @Test
     void When_UpdatedAtIsNull_Then_False(){
 
@@ -70,7 +70,7 @@ class EntityListenerTest {
     }
 
     @DirtiesContext(methodMode = BEFORE_METHOD)
-    @DisplayName("3. PreUpdate 수정 시 정상작동")
+    @DisplayName("PreUpdate 수정 시 정상작동")
     @Test
     void When_UpdateTimeWasNotUpdated_Then_False(){
 

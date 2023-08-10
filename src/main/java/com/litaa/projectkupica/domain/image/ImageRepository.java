@@ -18,4 +18,7 @@ public interface ImageRepository extends JpaRepository<Image, Integer> {
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE image SET image.source = ?2, image.cached_image_url = ?3, image.download_key = ?4 WHERE image.post_id = ?1", nativeQuery = true)
     void updateImage(int id, String source, String cachedImageUrl, String downloadKey);
+
+    @Query(value = "SELECT i.download_key FROM image i INNER JOIN post p ON i.post_id = p.post_id WHERE p.erased_flag = 0 AND i.image_id = ?1", nativeQuery = true)
+    String findDownloadKeyByImageId(int id);
 }

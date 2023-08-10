@@ -6,9 +6,9 @@ let lastId = 0;
 
 const drawList = (DATA) => {
 
-    DATA.forEach((item, index) => {
+    DATA.value.forEach((item) => {
 
-        const { post_id, source, cached_image_url, download_key, caption } = item;
+        const { post_id, image_id, source, cached_image_url, caption } = item;
 
         const DIV_CARD = document.createElement('div');
         DIV_CARD.setAttribute("class", "col-md-6 mb-4 card");
@@ -48,7 +48,7 @@ const drawList = (DATA) => {
         BUTTON_ELE_1.setAttribute("class", "btn btn-outline-primary btn-rounded");
         BUTTON_ELE_1.setAttribute("id", btn_id);
 
-        BUTTON_ELE_1.addEventListener("click", function () { downloadImg(download_key) });
+        BUTTON_ELE_1.addEventListener("click", function () { downloadImg(image_id) });
 
         const BUTTON_ELE_2 = document.createElement('button');
         const update_btn_id = "btn-update" + post_id;
@@ -143,7 +143,7 @@ const drawList = (DATA) => {
 const getList = () => {
     isFetching = true; // 아직 callback이 끝나지 않았어요!
 
-    fetch(URL_PAGING + "?lastPageId=" + lastId.toString() + "&pageSize=" + defaultPaginationSize.toString())
+    fetch(URL_PAGING + "?requestedPageId=" + lastId.toString() + "&pageSize=" + defaultPaginationSize.toString())
         .then(response => response.json())
         .then(drawList)
         .catch((e) => {
@@ -151,20 +151,36 @@ const getList = () => {
         });
 };
 
-function downloadImg(downloadKey) {
+function downloadImg(image_id) {
 
-    fetch("/images/" + downloadKey + "/download")
-        .then(response => response.blob())
+    let filename = ' ';
+    fetch("/images/" + image_id + "/download")
+        .then(response => {
+            if (response.ok) {
+                const contentDispositionHeader = response.headers.get('Content-Disposition');
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(contentDispositionHeader);
+
+                if (matches != null && matches[1]) {
+                    filename = matches[1].replace(/['"]/g, '');
+                }
+
+                return response.blob();
+            } else {
+                throw new Error("다운로드 실패")
+            }
+        })
         .then(function (response) {
             let link = document.createElement('a');
             link.style.display = 'none';
             document.body.appendChild(link);
-            console.log(response);
             link.href = window.URL.createObjectURL(response);
-            link.download = downloadKey;
+            link.download = filename;
             link.click();
-        }).catch((e) => {
-    });
+        })
+        .catch(error => {
+            alert(error)
+        });
 }
 
 window.addEventListener("scroll", function () {

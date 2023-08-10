@@ -39,19 +39,12 @@ class PostRepositoryTest {
 
     @BeforeEach
     void defaultGivenImages5() {
-        givenPosts = new ArrayList<>(5);
-        givenImages = new ArrayList<>(5);
 
-        for (int i = 0; i < 5; i++) {
-            givenPosts.add(Post.builder().password("1234").caption("test caption").erasedFlag(0).build());
-        }
+        createPosts5();
         givenPosts = (ArrayList<Post>) postRepository.saveAll(givenPosts);
-
         entityManager.flush();
 
-        for (int i = 0; i < 5; i++) {
-            givenImages.add(Image.builder().source("/asdf1.jpg").cachedImageUrl("cf/asdf1.jpg").downloadKey("s3://temp").post(givenPosts.get(i)).build());
-        }
+        createImages5();
         imageRepository.saveAll(givenImages);
     }
 
@@ -133,5 +126,20 @@ class PostRepositoryTest {
         String curCaption = testPost.getCaption();
 
         assertNotEquals(curCaption, prevCaption);
+    }
+
+    private void createImages5() {
+
+        givenImages = new ArrayList<>(5);
+        for (int i = 0; i < 5; i++) {
+            givenImages.add(Image.builder().source("/test1.jpg").cachedImageUrl("cf/test1.jpg").downloadKey("s3://temp").post(givenPosts.get(i)).build());
+        }
+    }
+
+    private void createPosts5() {
+        givenPosts = new ArrayList<>(5);
+        for (int i = 0; i < 5; i++) {
+            givenPosts.add(Post.builder().password("1234").caption("test caption").erasedFlag(0).build());
+        }
     }
 }

@@ -1,11 +1,11 @@
 let count_of_img = 0;
 const PODIUM_IMG_URL = "/images/latest/5";
 
-const draw_podium_List = (DATA) => {
+const draw_podium_list = (DATA) => {
 
-    DATA.forEach((item) => {
+    DATA.value.forEach((item) => {
 
-        const { source } = item;
+        const { cached_image_url } = item;
 
         const DIV_CARD = document.createElement('div');
         if (count_of_img === 0) DIV_CARD.setAttribute("class", "carousel-item active");
@@ -13,7 +13,7 @@ const draw_podium_List = (DATA) => {
 
         const IMG_ELE = document.createElement('img');
         IMG_ELE.setAttribute("class", "d-block w-100 -b");
-        IMG_ELE.setAttribute("src", source);
+        IMG_ELE.setAttribute("src", cached_image_url);
 
         DIV_CARD.append(IMG_ELE);
 
@@ -25,7 +25,7 @@ const draw_podium_List = (DATA) => {
 const get_podium_List = () => {
     fetch(PODIUM_IMG_URL)
         .then(response => response.json())
-        .then(draw_podium_List)
+        .then(draw_podium_list)
         .catch((e) => {
             console.log(e);
         });
