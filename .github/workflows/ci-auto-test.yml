@@ -19,7 +19,7 @@ jobs:
           distribution: 'corretto'
           cache: 'gradle'
       - name: Permission
-        run: chmod +x ./gradlew
+        run: chmod +wx ./gradlew
       - name: Build with Gradle
         run: ./gradlew clean build --stacktrace --debug
 
