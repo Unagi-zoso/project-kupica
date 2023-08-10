@@ -49,6 +49,7 @@ public class Post implements Auditable {
 
         private Integer postId;
         private String caption;
+        private Integer imageId;
         private String source;
         private String cachedImageUrl;
         private String downloadKey;
@@ -56,15 +57,17 @@ public class Post implements Auditable {
         public PostResponse(Post post) {
             this.postId = post.getPostId();
             this.caption = post.getCaption();
+            this.imageId = post.getImage().getImageId();
             this.source = post.getImage().getSource();
             this.cachedImageUrl = post.getImage().getCachedImageUrl();
             this.downloadKey = post.getImage().getDownloadKey();
         }
 
         @Builder
-        public PostResponse(Integer postId, String caption, String source, String cachedImageUrl, String downloadKey) {
+        public PostResponse(Integer postId, String caption, Integer imageId, String source, String cachedImageUrl, String downloadKey) {
             this.postId = postId;
             this.caption = caption;
+            this.imageId = imageId;
             this.source = source;
             this.cachedImageUrl = cachedImageUrl;
             this.downloadKey = downloadKey;
