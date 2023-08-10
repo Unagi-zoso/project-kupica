@@ -3,7 +3,7 @@ const PODIUM_IMG_URL = "/images/latest/5";
 
 const draw_podium_list = (DATA) => {
 
-    DATA.image_responses.forEach((item) => {
+    DATA.value.forEach((item) => {
 
         const { cached_image_url } = item;
 
