@@ -8,7 +8,7 @@ plugins {
 
 group = 'com.litaa'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+sourceCompatibility = '11.0.16'
 
 configurations {
 	compileOnly {
