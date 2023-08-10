@@ -14,7 +14,6 @@ function submitUpdateForm(event) {
     var updateFormData = new FormData();
     updateFormData.append('id', inputId);
     updateFormData.append('caption', inputCaption);
-    updateFormData.append('password', updatePasswordInput.value);
 
     var selectedUpdateFile = null;
     if (updateFileInput.files.length > 0) {
@@ -35,6 +34,9 @@ function submitUpdateForm(event) {
 
     fetch('posts/'+inputId, {
         method: 'PATCH',
+        headers: {
+            'Authorization': updatePasswordInput.value
+        },
         body: updateFormData
     })
         .then(function(response) {
@@ -52,10 +54,13 @@ function submitUpdateForm(event) {
                     reader.readAsDataURL(selectedUpdateFile);
                 }
             } else {
-                alert('파일 수정 실패!');
+                response.json().then(errorData => {
+                    alert(errorData.message)
+                })
             }
-        }) .catch(reason => {
-        console.error(reason);
-    })
+        })
+        .catch(error => {
+            alert(error.value)
+        })
 }
 
