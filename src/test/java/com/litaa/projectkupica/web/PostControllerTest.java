@@ -74,7 +74,7 @@ class PostControllerTest {
                                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                                     .with(csrf()))
                     .andExpect(status().isCreated())
-                    .andDo(document("/posts/upload/successful",
+                    .andDo(document("posts/upload/successful",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
                             requestHeaders(headerWithName("Authorization").description("A password for the post")),
@@ -110,7 +110,7 @@ class PostControllerTest {
                                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                                     .with(csrf()))
                     .andExpect(status().isBadRequest())
-                    .andDo(document("/posts/upload/failure/password-rule-violation",
+                    .andDo(document("posts/upload/failure/password-rule-violation",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
                             requestHeaders(headerWithName("Authorization").description("A password for the post")),
@@ -150,7 +150,7 @@ class PostControllerTest {
                     .andExpect(jsonPath("$.value.[0].source").value(posts.get(0).getSource()))
                     .andExpect(jsonPath("$.value.[0].cached_image_url").value(posts.get(0).getCachedImageUrl()))
                     .andExpect(jsonPath("$.value.[0].download_key").value(posts.get(0).getDownloadKey()))
-                    .andDo(document("/posts/page",
+                    .andDo(document("posts/page",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
                             requestParameters(
@@ -179,7 +179,7 @@ class PostControllerTest {
                             .with(csrf())
                     )
                     .andExpect(status().isOk())
-                    .andDo(document("/posts/delete",
+                    .andDo(document("posts/delete",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
                             requestHeaders(headerWithName("Authorization").description("A password for the post")),
@@ -210,7 +210,7 @@ class PostControllerTest {
                                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                                     .with(csrf()))
                     .andExpect(status().isOk())
-                    .andDo(document("/posts/update",
+                    .andDo(document("posts/update",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
                             requestHeaders(headerWithName("Authorization").description("A password for the post")),
