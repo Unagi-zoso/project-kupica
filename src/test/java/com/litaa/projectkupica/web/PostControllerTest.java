@@ -34,7 +34,6 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,6 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureRestDocs
 @WebMvcTest(PostController.class)
 class PostControllerTest {
+
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
@@ -74,7 +74,6 @@ class PostControllerTest {
                                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                                     .with(csrf()))
                     .andExpect(status().isCreated())
-                    .andDo(print())
                     .andDo(document("/posts/upload/successful",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
@@ -111,7 +110,6 @@ class PostControllerTest {
                                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                                     .with(csrf()))
                     .andExpect(status().isBadRequest())
-                    .andDo(print())
                     .andDo(document("/posts/upload/failure/password-rule-violation",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
@@ -152,7 +150,6 @@ class PostControllerTest {
                     .andExpect(jsonPath("$.value.[0].source").value(posts.get(0).getSource()))
                     .andExpect(jsonPath("$.value.[0].cached_image_url").value(posts.get(0).getCachedImageUrl()))
                     .andExpect(jsonPath("$.value.[0].download_key").value(posts.get(0).getDownloadKey()))
-                    .andDo(print())
                     .andDo(document("/posts/page",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
@@ -182,7 +179,6 @@ class PostControllerTest {
                             .with(csrf())
                     )
                     .andExpect(status().isOk())
-                    .andDo(print())
                     .andDo(document("/posts/delete",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
@@ -214,7 +210,6 @@ class PostControllerTest {
                                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                                     .with(csrf()))
                     .andExpect(status().isOk())
-                    .andDo(print())
                     .andDo(document("/posts/update",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint()),
