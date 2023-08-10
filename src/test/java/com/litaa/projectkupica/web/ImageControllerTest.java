@@ -6,10 +6,13 @@ import com.litaa.projectkupica.service.ImageService;
 import com.litaa.projectkupica.web.dto.ImageFile;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.*;
+import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,12 +21,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -33,6 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ActiveProfiles("local")
 @WithMockUser(username = "테스트 관리자", roles = {"SUPER"})
+@ExtendWith(RestDocumentationExtension.class)
+@AutoConfigureRestDocs
 @WebMvcTest(ImageController.class)
 class ImageControllerTest {
 
@@ -41,58 +51,111 @@ class ImageControllerTest {
     @Autowired
     MockMvc mockMvc;
     @MockBean
-    ImageController imageController;
-    @MockBean
-    ImageService imageService;
+    ImageService imageServiceMock;
 
     @DisplayName("이미지 다운로드받기")
     @Test
-    void testDownload() throws IOException {
-        final String fileName = "testimage1";
-        final String extension = "jpg";
-        final String pathName = "src/test/resources/testimage";
-        File file = new File(pathName + "/" + fileName + "." + extension);
-        byte[] mockImageData = Files.readAllBytes(file.toPath());
+    void testDownload() {
 
-        ImageFile imageFile = new ImageFile(mockImageData, fileName, MediaType.IMAGE_JPEG, mockImageData.length);
+        byte[] imageData = createImageData();
+        ImageFile imageFile = convertToImageFile(imageData);
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(imageFile.getMediaType());
-        httpHeaders.setContentLength(imageFile.getSize());
-        httpHeaders.setContentDisposition(ContentDisposition.attachment().filename(imageFile.getFileName()).build());
+        final int imageId = 1;
 
-        when(imageController.download(anyInt())).thenReturn(ResponseEntity.ok().headers(httpHeaders).body(mockImageData));
+        when(imageServiceMock.download(anyInt())).thenReturn(imageFile);
 
-        // when
-        ResponseEntity<byte[]> response = imageController.download(1);
+        try {
+            mockMvc.perform(get("/images/{imageId}/download", imageId))
+                    .andExpect(content().bytes(imageData))
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andDo(document("images/download/successful",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint())
+                    ));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        // then
-        // response 상태 검증
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(MediaType.IMAGE_JPEG, response.getHeaders().getContentType());
+    @DisplayName("imageId 1보다 작을 때 다운로드 요청 시 유효성 검사")
+    @Test
+    void When_ImageIdIsLessThan1_Expect_BadRequest() {
 
-        // 이미지 데이터 검증
-        byte[] downloadedImageData = Objects.requireNonNull(response.getBody());
-        assertNotNull(downloadedImageData);
-        assertEquals(mockImageData.length, downloadedImageData.length);
-        assertArrayEquals(mockImageData, downloadedImageData);
+        byte[] imageData = createImageData();
+        ImageFile imageFile = convertToImageFile(imageData);
+
+        final int imageId = -5;
+
+        when(imageServiceMock.download(anyInt())).thenReturn(imageFile);
+
+        try {
+            mockMvc.perform(get("/images/{imageId}/download", imageId))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andDo(document("images/download/failure",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint())
+                    ));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @DisplayName("최근에 등록된 image 5개 가져오기")
     @Test
     void testFindLatestImages5() {
-        ArrayList<ImageResponse> givenImageResponses = new ArrayList<>();
 
-        for (int i = 0; i < 5; i++) {
-            givenImageResponses.add(ImageResponse.builder().imageId(1).source("s3://asdf").cachedImageUrl("cf://asdf").downloadKey("down://asdf").build());
-        }
+        ArrayList<ImageResponse> givenImageResponses = createImageResponses();
 
-        when(imageService.findLatestImages5()).thenReturn(givenImageResponses);
+        when(imageServiceMock.findLatestImages5()).thenReturn(givenImageResponses);
 
         try {
             mockMvc.perform(get("/images/latest/5"))
-                    .andExpect(status().isOk());
-        } catch (Exception ignored) {
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andDo(document("images/findLatestImages5",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint())));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    private ImageFile convertToImageFile(byte[] imageData) {
+
+        return new ImageFile(imageData, "testImage", MediaType.IMAGE_JPEG, imageData.length);
+    }
+
+    private byte[] createImageData() {
+
+        final String fileName = "testimage1";
+        final String extension = "jpg";
+        final String pathName = "src/test/resources/testimage";
+        File file = new File(pathName + "/" + fileName + "." + extension);
+
+        byte[] imageData = new byte[0];
+        try {
+            imageData = Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return imageData;
+    }
+
+    private ArrayList<ImageResponse> createImageResponses() {
+
+        ArrayList<ImageResponse> givenImageResponses = new ArrayList<>();
+
+        for (int i = 0; i < 5; i++) {
+            givenImageResponses.add(ImageResponse.builder()
+                    .imageId(1)
+                    .source("s3://test")
+                    .cachedImageUrl("cf://test")
+                    .downloadKey("down://test")
+                    .build());
+        }
+
+        return givenImageResponses;
     }
 }
