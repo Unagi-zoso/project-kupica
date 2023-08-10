@@ -16,9 +16,10 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 11
-          distribution: zulu
+          distribution: 'amazon-corretto'
+          cache: 'gradle'
       - name: Permission
-        run: chmod +wx ./gradlew
+        run: chmod +x ./gradlew
       - name: Build with Gradle
         run: ./gradlew clean build --stacktrace --debug
 
