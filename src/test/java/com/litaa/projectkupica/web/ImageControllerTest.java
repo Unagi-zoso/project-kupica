@@ -21,16 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,7 +64,6 @@ class ImageControllerTest {
             mockMvc.perform(get("/images/{imageId}/download", imageId))
                     .andExpect(content().bytes(imageData))
                     .andExpect(status().isOk())
-                    .andDo(print())
                     .andDo(document("images/download/successful",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint())
@@ -92,7 +87,6 @@ class ImageControllerTest {
         try {
             mockMvc.perform(get("/images/{imageId}/download", imageId))
                     .andExpect(status().isBadRequest())
-                    .andDo(print())
                     .andDo(document("images/download/failure",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint())
@@ -113,7 +107,6 @@ class ImageControllerTest {
         try {
             mockMvc.perform(get("/images/latest/5"))
                     .andExpect(status().isOk())
-                    .andDo(print())
                     .andDo(document("images/findLatestImages5",
                             preprocessRequest(prettyPrint()),
                             preprocessResponse(prettyPrint())));
