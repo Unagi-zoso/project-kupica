@@ -7,6 +7,9 @@ import com.litaa.projectkupica.domain.image.Image;
 import com.litaa.projectkupica.domain.image.Image.ImageResponse;
 import com.litaa.projectkupica.domain.image.ImageRepository;
 import com.litaa.projectkupica.domain.post.PostRepository;
+import com.litaa.projectkupica.exception.image.ImageConversionException;
+import com.litaa.projectkupica.exception.image.ImageNotFoundException;
+import com.litaa.projectkupica.exception.image.ImageUploadException;
 import com.litaa.projectkupica.web.dto.ImageFile;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -44,9 +47,10 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final Logger LOGGER = LoggerFactory.getLogger(ImageService.class);
 
-    public void uploadImage(int postId, MultipartFile imageFile) throws IOException {
+    public void uploadImage(int postId, MultipartFile imageFile) {
 
-        ArrayList<String> s3UploadResult = uploadImageToS3Bucket(imageFile);
+        ArrayList<String> s3UploadResult = null;
+        s3UploadResult = uploadImageToS3Bucket(imageFile);
 
         String imagePath = s3UploadResult.get(0);
         String cachedImageUrl = s3UploadResult.get(1);
@@ -62,16 +66,25 @@ public class ImageService {
         imageRepository.save(image);
     }
 
-    public ImageFile download(int imageId) throws IOException {
+    public ImageFile download(int imageId) {
+
         String storedFileUrl = imageRepository.findDownloadKeyByImageId(imageId);
+
+        if (null == storedFileUrl) {
+            throw new ImageNotFoundException();
+        }
 
         S3Object s3Object = amazonS3Client.getObject(new GetObjectRequest(s3Bucket, storedFileUrl));
         S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
-        byte[] bytes = IOUtils.toByteArray(objectInputStream);
 
-        String fileName = URLEncoder.encode(storedFileUrl, "UTF-8").replaceAll("\\+", "%20");
-
-        return new ImageFile(bytes, fileName, contentType(storedFileUrl), bytes.length);
+        byte[] bytes = new byte[0];
+        try {
+            bytes = IOUtils.toByteArray(objectInputStream);
+            String fileName = URLEncoder.encode(storedFileUrl, "UTF-8").replaceAll("\\+", "%20");
+            return new ImageFile(bytes, fileName, contentType(storedFileUrl), bytes.length);
+        } catch (IOException e) {
+            throw new ImageConversionException();
+        }
     }
 
     public List<ImageResponse> findLatestImages5() {
@@ -86,7 +99,7 @@ public class ImageService {
                 .collect(Collectors.toList());
     }
 
-    private ArrayList<String> uploadImageToS3Bucket(MultipartFile file) throws IOException {
+    private ArrayList<String> uploadImageToS3Bucket(MultipartFile file) {
 
         LOGGER.info("[PostService] upload image to s3 bucket.");
 
@@ -98,10 +111,14 @@ public class ImageService {
         objectMetaData.setContentType(file.getContentType());
         objectMetaData.setContentLength(imageSize);
 
-        amazonS3Client.putObject(
-                new PutObjectRequest(s3Bucket, imageFileName, file.getInputStream(), objectMetaData)
-                        .withCannedAcl(CannedAccessControlList.PublicRead)
-        );
+        try {
+            amazonS3Client.putObject(
+                    new PutObjectRequest(s3Bucket, imageFileName, file.getInputStream(), objectMetaData)
+                            .withCannedAcl(CannedAccessControlList.PublicRead)
+            );
+        } catch (IOException e) {
+            throw new ImageUploadException();
+        }
 
         String s3ImagePath = amazonS3Client.getUrl(s3Bucket, imageFileName).toString();
         String cloudfrontImagePath = cloudfrontDomain + imageFileName;
@@ -125,6 +142,7 @@ public class ImageService {
 
         switch (type) {
             case "txt":
+            case "TXT":
                 return MediaType.TEXT_PLAIN;
             case "png":
             case "PNG":
@@ -139,7 +157,7 @@ public class ImageService {
         }
     }
 
-    public void updateImage(Integer id, MultipartFile imageFile) throws IOException {
+    public void updateImage(Integer id, MultipartFile imageFile) {
 
         ArrayList<String> s3UploadResult = uploadImageToS3Bucket(imageFile);
 

@@ -20,11 +20,13 @@ function submitUploadForm(event) {
 
         formData.append('file', selectedFile);
         formData.append('caption', captionInput.value);
-        formData.append('password', passwordInput.value);
 
         // Fetch 요청 보내기
         fetch('posts', {
             method: 'POST',
+            headers: {
+                'Authorization': passwordInput.value
+            },
             body: formData
         })
             .then(function(response) {
@@ -32,11 +34,14 @@ function submitUploadForm(event) {
                 if (response.ok) {
                     resetModalUploadForm();
                 } else {
-                    alert('파일 업로드 실패!');
+                    response.json().then(errorData => {
+                        alert(errorData.message)
+                    })
                 }
-            }) .catch(reason => {
-                console.error(reason);
-        })
+            })
+            .catch(error => {
+                alert(error.value)
+            })
 
     }
 }

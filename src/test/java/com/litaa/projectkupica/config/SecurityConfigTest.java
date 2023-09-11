@@ -16,7 +16,7 @@ class SecurityConfigTest {
     @Autowired
     private Environment environment;
 
-    @DisplayName("1. env로 profile 제대로 가져오는지 테스트")
+    @DisplayName("env로 profile 제대로 가져오는지 테스트")
     @Test
     void When_ProfileIsNotLocal_Then_False(){
         assertEquals("local", environment.getActiveProfiles()[0]);

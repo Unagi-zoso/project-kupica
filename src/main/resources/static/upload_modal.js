@@ -3,13 +3,13 @@ document.getElementById("modal_open_btn").onclick = function() {
 }
 
 document.getElementById("modal_close_btn").onclick = function() {
-    document.getElementById("modal-upload").style.display="none";
+    resetModalUploadForm();
 }
 
 document.getElementById("modal-upload").addEventListener("click", e => {
     const evTarget = e.target
     if(evTarget.classList.contains("modal-overlay")) {
-        document.getElementById("modal-upload").style.display = "none"
+        resetModalUploadForm();
     }
 })
 

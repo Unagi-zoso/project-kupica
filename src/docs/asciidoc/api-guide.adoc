@@ -1,0 +1,190 @@
+= Kupica API guide
+Andy Wilkinson;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+[overview_http_verbs]]
+== HTTP Methods
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP verbs.
+
+|===
+| Verb | Usage
+
+| `GET`
+| Used to retrieve a resource
+
+| `POST`
+| Used to create a new resource
+
+| `PATCH`
+| Used to update an existing resource, including partial updates
+
+| `DELETE`
+| Used to delete an existing resource
+|===
+
+[[overview_http_status_codes]]
+== HTTP status codes
+
+RESTful notes tries to adhere as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `201 Created`
+| A new resource has been created successfully.
+The resource's URI is available from the response's
+`Location` header
+
+| `204 No Content`
+| An update to an existing resource has been applied successfully
+
+| `400 Bad Request`
+| The request was malformed.
+The response body will include an error providing further information
+
+| `401 Unauthorized`
+| The request has not been applied because it lacks valid authentication credentials for the target resource.
+
+| `403 Forbidden`
+| The server understood the request but refuses to authorize it.
+
+| `404 Not Found`
+| The requested resource did not exist
+
+| `409 Conflict`
+| The request could not be completed due to a conflict with the current state of the target resource.
+This code is used in situations where the user might be able to resolve the conflict and resubmit the request.
+|===
+
+
+== POST API
+=== 1. 게시물 업로드
+`*_Success_*`
+
+**request-headers**
+include::{snippets}/posts/upload/successful/request-headers.adoc[]
+
+**request-parameters**
+include::{snippets}/posts/upload/successful/request-parameters.adoc[]
+
+**request-parts**
+include::{snippets}/posts/upload/successful/request-parts.adoc[]
+
+**Example request**
+include::{snippets}/posts/upload/successful/http-request.adoc[]
+
+**Example response**
+include::{snippets}/posts/upload/successful/http-response.adoc[]
+
+
+---
+
+
+`*_Failure_*`
+
+**request-headers**
+include::{snippets}/posts/upload/failure/password-rule-violation/request-headers.adoc[]
+
+**request-parameters**
+include::{snippets}/posts/upload/failure/password-rule-violation/request-parameters.adoc[]
+
+**request-parts**
+include::{snippets}/posts/upload/failure/password-rule-violation/request-parts.adoc[]
+
+**Example request**
+include::{snippets}/posts/upload/failure/password-rule-violation/http-request.adoc[]
+
+**Example response**
+include::{snippets}/posts/upload/failure/password-rule-violation/http-response.adoc[]
+
+
+---
+
+
+=== 2. 게시물 수정
+**request-headers**
+include::{snippets}/posts/update/request-headers.adoc[]
+**request-parameters**
+include::{snippets}/posts/update/request-parameters.adoc[]
+**request-parts**
+include::{snippets}/posts/update/request-parts.adoc[]
+**Example request**
+include::{snippets}/posts/update/http-request.adoc[]
+**Example response**
+include::{snippets}/posts/update/http-response.adoc[]
+
+
+---
+
+
+=== 3. 게시물 삭제
+**request-headers**
+include::{snippets}/posts/delete/request-headers.adoc[]
+
+**request-parameters**
+include::{snippets}/posts/delete/request-parameters.adoc[]
+
+**Example request**
+include::{snippets}/posts/delete/http-request.adoc[]
+
+**Example response**
+include::{snippets}/posts/delete/http-response.adoc[]
+
+
+---
+
+
+=== 4. 게시물 페이지로 조회
+**request-parameters**
+include::{snippets}/posts/page/request-parameters.adoc[]
+
+**Example request**
+include::{snippets}/posts/page/http-request.adoc[]
+
+**Example response**
+include::{snippets}/posts/page/http-response.adoc[]
+
+
+== IMAGE API
+=== 1. 이미지 다운로드
+`*_Success_*`
+
+**Example request**
+include::{snippets}/images/download/successful/http-request.adoc[]
+
+**Example response**
+include::{snippets}/images/download/successful/http-response.adoc[]
+
+
+---
+
+
+`*_Failure_*`
+
+**Example request**
+include::{snippets}/images/download/failure/http-request.adoc[]
+
+**Example response**
+include::{snippets}/images/download/failure/http-response.adoc[]
+
+
+---
+
+
+=== 2. 최근 이미지 5개 조회
+**Example request**
+include::{snippets}/images/findLatestImages5/http-request.adoc[]
+
+**Example response**
+include::{snippets}/images/findLatestImages5/http-response.adoc[]
